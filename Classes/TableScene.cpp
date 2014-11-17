@@ -104,7 +104,7 @@ bool TableScene::init()
 			auto errItem = Sprite::create("chip_red_is.png");
 			errItem->setPosition(pos.errDelta * i);
 			errItem->setScale(pos.errScale);
-			errItem->setName(StringUtils::format("red_%d", i));
+			errItem->setName(StringUtils::format("%d", i));
 			if (i > 1) errItem->setVisible(false);
 			err->addChild(errItem, 1);
 		}
@@ -131,7 +131,7 @@ bool TableScene::init()
 			auto infoItem = Sprite::create("chip_blue_is.png");
 			infoItem->setPosition(pos.infoDelta * i);
 			infoItem->setScale(pos.infoScale);
-			infoItem->setName(StringUtils::format("blue_%d", i));
+			infoItem->setName(StringUtils::format("%d", i));
 			if (i > 5) infoItem->setVisible(false);
 			info->addChild(infoItem, 1);
 		}
