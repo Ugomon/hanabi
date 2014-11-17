@@ -1,5 +1,6 @@
 hanabi
 ======
 
-board game hanabi (by cocos2d-x)
-Hi all!
+board game hanabi.
+
+Used cocos2d-x.
