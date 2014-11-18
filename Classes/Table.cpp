@@ -5,13 +5,13 @@
 
 USING_NS_CC;
 
-Scene* TableScene::createScene()
+Scene* Table::createScene()
 {
     // 'scene' is an autorelease object
     auto scene = Scene::create();
 
     // 'layer' is an autorelease object
-    auto layer = TableScene::create();
+    auto layer = Table::create();
 
     // add layer as a child to scene
     scene->addChild(layer);
@@ -20,7 +20,7 @@ Scene* TableScene::createScene()
     return scene;
 }
 
-void TableScene::addCardSprite(const std::string &filename, cocos2d::Vec2 pos, int z)
+void Table::addCardSprite(const std::string &filename, cocos2d::Vec2 pos, int z)
 {
     auto sprite = Sprite::create(filename);
     sprite->setAnchorPoint(Vec2::ZERO);
@@ -29,7 +29,7 @@ void TableScene::addCardSprite(const std::string &filename, cocos2d::Vec2 pos, i
     this->addChild(sprite, z);
 }
 
-Sprite *TableScene::loadCardSprite(const std::string &id)
+Sprite *Table::loadCardSprite(const std::string &id)
 {
 	int num = 1;
 	std::string color = "red";
@@ -65,7 +65,7 @@ Sprite *TableScene::loadCardSprite(const std::string &id)
 }
 
 // on "init" you need to initialize your instance
-bool TableScene::init()
+bool Table::init()
 {
     //////////////////////////////
     // 1. super init first
@@ -186,7 +186,7 @@ bool TableScene::init()
     return true;
 }
 
-void TableScene::drop1(size_t name, char color, size_t serial)
+void Table::drop1(size_t name, char color, size_t serial)
 {
 	const Positions &pos = Positions::getPositions();
 
@@ -233,13 +233,13 @@ void TableScene::drop1(size_t name, char color, size_t serial)
     card->runAction(scale);
 }
 
-void TableScene::takeDropTest(const std::string &id, char color, size_t serial)
+void Table::takeDropTest(const std::string &id, char color, size_t serial)
 {
 	take1(0, id, 0);
 	drop1(0, color, serial);
 }
 
-void TableScene::deck(size_t qty)
+void Table::deck(size_t qty)
 {
 	log("drop");
 	//drop1(0, 'r', 0);
@@ -280,7 +280,7 @@ void TableScene::deck(size_t qty)
 	//take1(0, "y2", 0);
 }
 
-void TableScene::newGame()
+void Table::newGame()
 {
 	log("new game");
 
@@ -299,7 +299,7 @@ void TableScene::newGame()
 
 // TODO надо назначать с сервера Name для этой карты (для манипуляций)
 // todo надо еще позицию сохранять в спрайте, видимо
-void TableScene::take(size_t orderNum)
+void Table::take(size_t orderNum)
 {
 	const Positions &pos = Positions::getPositions();
 
@@ -316,7 +316,7 @@ void TableScene::take(size_t orderNum)
 }
 
 // TODO надо назначать с сервера Name для этой карты (для манипуляций)
-void TableScene::take1(size_t orderNum, const std::string &id, size_t name)
+void Table::take1(size_t orderNum, const std::string &id, size_t name)
 {
 	const Positions &pos = Positions::getPositions();
 
@@ -331,7 +331,7 @@ void TableScene::take1(size_t orderNum, const std::string &id, size_t name)
     card->runAction(move);
 }
 
-void TableScene::menuCloseCallback(Ref* pSender)
+void Table::menuCloseCallback(Ref* pSender)
 {
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_WP8) || (CC_TARGET_PLATFORM == CC_PLATFORM_WINRT)
 	MessageBox("You pressed the close button. Windows Store Apps do not implement a close button.","Alert");

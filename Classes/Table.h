@@ -1,5 +1,5 @@
-#ifndef __TABLE_SCENE_H__
-#define __TABLE_SCENE_H__
+#ifndef __TABLE_H__
+#define __TABLE_H__
 
 #include "cocos2d.h"
 
@@ -48,7 +48,7 @@
  * Сказанная мне информация отображается на моих картах, пока я не сделаю ход (перемещение карт не считается ходом).
  */
 
-class TableScene : public cocos2d::Layer
+class Table : public cocos2d::Layer
 {
 public:
     // there's no 'id' in cpp, so we recommend returning the class instance pointer
@@ -75,7 +75,7 @@ public:
     void takeDropTest(const std::string &id, char color, size_t serial);
 
     // implement the "static create()" method manually
-    CREATE_FUNC(TableScene);
+    CREATE_FUNC(Table);
 };
 
-#endif // __TABLE_SCENE_H__
+#endif // __TABLE_H__
