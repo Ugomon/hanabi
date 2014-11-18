@@ -1,4 +1,4 @@
-#include "MySprite.h"
+#include "DragSprite.h"
 
 using namespace cocos2d;
 

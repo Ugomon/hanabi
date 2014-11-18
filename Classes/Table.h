@@ -27,8 +27,8 @@
  * "0",..,"4" - карты в моей руке
  *
  * “ерминологи€.
- * id - текст вида: "r2" или "w5". ќднозначно определ€ет изображение карты.
- * name - идентификатор карты на руке; от 0 до 4. »спользуетс€ дл€ простого однозначного указани€ на карту в моей руке или руке оппонента.
+ * image - текст вида: "r2" или "w5". ќднозначно определ€ет изображение карты.
+ * id - идентификатор карты на руке; от 0 до 4. »спользуетс€ дл€ простого однозначного указани€ на карту в моей руке или руке оппонента.
  * orderNum - пор€дковый номер карты в руке; от 0 до 4. »спользуетс€ дл€ указани€, с какой позиции надо забрать карту.
  * 				—ервер об€зан знать эту информацию (чтобы сообщать ее другим игрокам). ѕоэтому решено не хранить ее в спрайте, а каждый раз получать от сервера.
  * serial - пор€дковый номер позиции в столбце сброса; нумераци€ начинаетс€ с 0.
@@ -63,16 +63,16 @@ public:
     // стандартное добавление безим€нных спрайтов на стол
     void addCardSprite(const std::string &filename, cocos2d::Vec2 pos, int z);
 
-    // получить спрайт карты по id
-    cocos2d::Sprite *loadCardSprite(const std::string &id);
+    // получить спрайт карты по image
+    cocos2d::Sprite *loadCardSprite(const std::string &image);
 
     // выполнение команд полученных от сервера
     void newGame();
     void take(size_t orderNum); // € вз€л карту из колоды
-    void take1(size_t orderNum, const std::string &id, size_t name); // оппонент берет карту из колоды
-    void drop1(size_t name, char color, size_t serial); // оппонент сбросил указанную карту; и положить ее надо в сброс по указонному адресу
+    void take1(size_t orderNum, const std::string &image, size_t id); // оппонент берет карту из колоды
+    void drop1(size_t id, char color, size_t serial); // оппонент сбросил указанную карту; и положить ее надо в сброс по указонному адресу
     void deck(size_t qty); // в деке осталось qty карт
-    void takeDropTest(const std::string &id, char color, size_t serial);
+    void takeDropTest(const std::string &image, char color, size_t serial);
 
     // implement the "static create()" method manually
     CREATE_FUNC(Table);

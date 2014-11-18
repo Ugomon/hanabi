@@ -58,8 +58,9 @@ if( UNIX ) #assume linux
 set(GAME_SRC
   proj.linux/main.cpp
   Classes/AppDelegate.cpp
-  Classes/TableScene.cpp
+  Classes/Table.cpp
   Classes/Positions.cpp
+  Classes/DragSprite.cpp
 )
 elseif ( WIN32 )
 set(GAME_SRC

@@ -1,5 +1,5 @@
 #include "AppDelegate.h"
-#include "TableScene.h"
+#include "Table.h"
 
 USING_NS_CC;
 

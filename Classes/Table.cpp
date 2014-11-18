@@ -1,4 +1,4 @@
-#include "TableScene.h"
+#include "Table.h"
 #include "Positions.h"
 #include "ui/UIButton.h"
 #include <functional>
@@ -29,13 +29,13 @@ void Table::addCardSprite(const std::string &filename, cocos2d::Vec2 pos, int z)
     this->addChild(sprite, z);
 }
 
-Sprite *Table::loadCardSprite(const std::string &id)
+Sprite *Table::loadCardSprite(const std::string &image)
 {
 	int num = 1;
 	std::string color = "red";
-	if (id.length() == 2)
+	if (image.length() == 2)
 	{
-		switch(id.at(0))
+		switch(image.at(0))
 		{
 		case 'r':
 			color = "red"; break;
@@ -51,7 +51,7 @@ Sprite *Table::loadCardSprite(const std::string &id)
 			color = "rainbow"; break;
 		}
 
-		num = id.at(1) - '0';
+		num = image.at(1) - '0';
 		if (1 > num || num > 5)
 		{
 			num = 1;
@@ -186,12 +186,12 @@ bool Table::init()
     return true;
 }
 
-void Table::drop1(size_t name, char color, size_t serial)
+void Table::drop1(size_t id, char color, size_t serial)
 {
 	const Positions &pos = Positions::getPositions();
 
 	auto cards = getChildByName("cards");
-	auto card = cards->getChildByName(StringUtils::format("o%u", name));
+	auto card = cards->getChildByName(StringUtils::format("o%u", id));
 	card->setName("");
 
 	Vec2 dropPos, dropDelta;
@@ -225,7 +225,7 @@ void Table::drop1(size_t name, char color, size_t serial)
 	}
 
 	Vec2 res = dropPos + dropDelta * serial;
-	Vec2 originalPos = pos.opponent + pos.opponentDelta * name;
+	Vec2 originalPos = pos.opponent + pos.opponentDelta * id;
     auto move = MoveBy::create(1, res - originalPos);
     card->runAction(move);
 
@@ -233,9 +233,9 @@ void Table::drop1(size_t name, char color, size_t serial)
     card->runAction(scale);
 }
 
-void Table::takeDropTest(const std::string &id, char color, size_t serial)
+void Table::takeDropTest(const std::string &image, char color, size_t serial)
 {
-	take1(0, id, 0);
+	take1(0, image, 0);
 	drop1(0, color, serial);
 }
 
@@ -297,8 +297,7 @@ void Table::newGame()
 	take(4);
 }
 
-// TODO надо назначать с сервера Name для этой карты (для манипуляций)
-// todo надо еще позицию сохранять в спрайте, видимо
+// TODO надо назначать с сервера Name(==id) для этой карты (для манипуляций)
 void Table::take(size_t orderNum)
 {
 	const Positions &pos = Positions::getPositions();
@@ -315,14 +314,13 @@ void Table::take(size_t orderNum)
     card->runAction(move);
 }
 
-// TODO надо назначать с сервера Name для этой карты (для манипуляций)
-void Table::take1(size_t orderNum, const std::string &id, size_t name)
+void Table::take1(size_t orderNum, const std::string &image, size_t id)
 {
 	const Positions &pos = Positions::getPositions();
 
-	Sprite *card = loadCardSprite(id);
+	Sprite *card = loadCardSprite(image);
 	card->setPosition(pos.deck);
-	card->setName(StringUtils::format("o%u", name));
+	card->setName(StringUtils::format("o%u", id));
 
 	auto cards = getChildByName("cards");
 	cards->addChild(card);
