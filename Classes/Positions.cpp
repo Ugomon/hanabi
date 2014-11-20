@@ -60,6 +60,12 @@ static Positions makeIph5Positions()
 	pos.dropZone = Rect(825, 50, 300, 525);
 	pos.changeZone = Rect(50, 0, 650, 125);
 
+	// меню выбора инфы
+	pos.numMenu = Vec2(100, 350);
+	pos.numMenuDelta = Vec2(20 + 125, 0);
+	pos.colorMenu = Vec2(100, 200);
+	pos.colorMenuDelta = Vec2(10 + 125, 0);
+
 	return pos;
 }
 

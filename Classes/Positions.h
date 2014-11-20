@@ -59,10 +59,16 @@ struct Positions
 	cocos2d::Vec2 dropF;
 	cocos2d::Vec2 dropFDelta;
 
-	//
+	// zones
 	cocos2d::Rect tableCenter; // зона, отпускание в которой считается ходом
 	cocos2d::Rect dropZone; // зона, отпускание в которой считается сбросом
 	cocos2d::Rect changeZone; // зона, перемещение в которой приводит к изменению мест карт
+
+	// меню выбора инфы
+	cocos2d::Vec2 numMenu; // первый пункт меню выбора номиналов
+	cocos2d::Vec2 numMenuDelta; // смещения следующего пункта меню выбора номиналов
+	cocos2d::Vec2 colorMenu; // первый пункт меню выбора цветов
+	cocos2d::Vec2 colorMenuDelta; // смещения следующего пункта меню выбора цветов
 
 	static const Positions &getPositions();
 };

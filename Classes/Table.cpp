@@ -4,6 +4,7 @@
 #include <functional>
 #include "MyCard.h"
 #include <vector>
+#include "base/CCVector.h"
 
 USING_NS_CC;
 
@@ -112,7 +113,8 @@ void Table::cardReleased(MyCard &card)
 		size_t newOrderNum = calculateOrderNum(card.getPosition());
 		if (newOrderNum != card.getOrderNum())
 		{
-			sendToServer(StringUtils::format("move %s %lu->%lu", card.getName().c_str(), card.getOrderNum(), newOrderNum));
+			sendToServer(StringUtils::format("move %s, %lu; //<-%lu"
+					, card.getName().c_str(), newOrderNum, card.getOrderNum()));
 
 			auto order2Place = calculateNewOrder(card.getOrderNum(), newOrderNum);
 			changeCardOrder(order2Place);
@@ -173,6 +175,38 @@ void Table::addCardSprite(const std::string &filename, cocos2d::Vec2 pos, int z)
     sprite->setPosition(pos);
     sprite->setScale(Positions::getPositions().cardSpriteScale);
     this->addChild(sprite, z);
+}
+
+cocos2d::Sprite *Table::loadNumSprite(size_t num)
+{
+    auto sprite = Sprite::create(StringUtils::format("is_%lu.png", num));
+    sprite->setAnchorPoint(Vec2::ZERO);
+    //sprite->setScale(Positions::getPositions().cardSpriteScale);
+    return sprite;
+}
+
+cocos2d::Sprite *Table::loadColorSprite(char c)
+{
+	std::string color = "red";
+	switch(c)
+	{
+	case 'r':
+		color = "red"; break;
+	case 'g':
+		color = "green"; break;
+	case 'b':
+		color = "blue"; break;
+	case 'y':
+		color = "yellow"; break;
+	case 'w':
+		color = "white"; break;
+	case 'f':
+		color = "rainbow"; break;
+	}
+    auto sprite = Sprite::create(StringUtils::format("is_%s.png", color.c_str()));
+    sprite->setAnchorPoint(Vec2::ZERO);
+    //sprite->setScale(Positions::getPositions().cardSpriteScale);
+    return sprite;
 }
 
 Sprite *Table::loadCardSprite(const std::string &image)
@@ -323,13 +357,99 @@ bool Table::init()
 		});
 		labelItem1->setPosition(Vec2(50, 100));
 
-
 		auto menuLabel = Menu::create(labelItem, labelItem1, nullptr);
 		menuLabel->setPosition(Vec2::ZERO);
-		this->addChild(menuLabel);
+		this->addChild(menuLabel, 20);
+    }
+
+    // create opponent menu
+    {
+    	Vector<MenuItem *> arrayOfItems;
+
+    	for (size_t i = 0; i < 5; ++i)
+    	{
+			auto opponentItem = MenuItemImage::create("card_back.png", "card_back.png", [=](Ref* sender){
+				this->opponentTouched(i);
+			});
+			opponentItem->setPosition(pos.opponent + pos.opponentDelta * i);
+			opponentItem->setAnchorPoint(Vec2::ZERO);
+			opponentItem->setScale(pos.cardSpriteScale);
+			opponentItem->setOpacity(0);
+
+			arrayOfItems.pushBack(opponentItem);
+    	}
+
+		auto menu = Menu::createWithArray(arrayOfItems);
+		menu->setPosition(Vec2::ZERO);
+		addChild(menu, 20);
     }
 
     return true;
+}
+
+void Table::infoNumTouched(size_t num)
+{
+	log("info '%lu' touched", num);
+	sendToServer(StringUtils::format("info %lu;", num));
+	removeChildByName("info_menu");
+}
+
+void Table::infoColorTouched(char c)
+{
+	log("info '%c' touched", c);
+	sendToServer(StringUtils::format("info %c;", c));
+	removeChildByName("info_menu");
+}
+
+void Table::opponentTouched(size_t orderNum)
+{
+	const Positions &pos = Positions::getPositions();
+	log("opponent %lu touched", orderNum);
+
+	// удалить такое меню, если оно уже есть
+	removeChildByName("info_menu");
+
+	// создать айтемы номеров
+	Vector<MenuItem *> arrayOfItems;
+	for (size_t i = 0; i < 5; ++i)
+	{
+		auto numItem = MenuItemImage::create("card_face.png", "card_face.png", [=](Ref* sender){
+			this->infoNumTouched(i + 1);
+		});
+		numItem->setPosition(pos.numMenu + pos.numMenuDelta * i);
+		numItem->setAnchorPoint(Vec2::ZERO);
+		numItem->setScale(pos.cardSpriteScale);
+
+		// приделать цифру
+		auto numSprite = loadNumSprite(i + 1);
+		numItem->addChild(numSprite, 1);
+
+		arrayOfItems.pushBack(numItem);
+	}
+
+	// создать айтемы цветов
+	std::vector<char> colors = {'r', 'g', 'b', 'y', 'w', 'f'};
+	for (size_t i = 0; i < colors.size(); ++i)
+	{
+		auto numItem = MenuItemImage::create("card_face.png", "card_face.png", [=](Ref* sender){
+			this->infoColorTouched(colors[i]);
+		});
+		numItem->setPosition(pos.colorMenu + pos.colorMenuDelta * i);
+		numItem->setAnchorPoint(Vec2::ZERO);
+		numItem->setScale(pos.cardSpriteScale);
+
+		// приделать цвет
+		auto numSprite = loadColorSprite(colors[i]);
+		numItem->addChild(numSprite, 1);
+
+		arrayOfItems.pushBack(numItem);
+	}
+
+	// создать меню и добавить его на стол
+	auto menu = Menu::createWithArray(arrayOfItems);
+	menu->setPosition(Vec2::ZERO);
+	menu->setName("info_menu");
+	addChild(menu, 30);
 }
 
 void Table::drop1(size_t id, char color, size_t serial)

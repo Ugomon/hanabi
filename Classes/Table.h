@@ -69,6 +69,12 @@ public:
     // получить спрайт карты по image
     cocos2d::Sprite *loadCardSprite(const std::string &image);
 
+    // получить спрайт карты по цифре
+    cocos2d::Sprite *loadNumSprite(size_t num);
+
+    // получить спрайт карты по цвету
+    cocos2d::Sprite *loadColorSprite(char c);
+
     // выполнение команд полученных от сервера
     void newGame();
     void take(size_t orderNum, size_t id); // я взял карту из колоды
@@ -89,6 +95,11 @@ public:
     static size_t calculateOrderNum(cocos2d::Vec2 cardPos); // вычисляет порядковый номер карты в руке по её положению
     std::vector<size_t> calculateNewOrder(size_t oldOrderNum, size_t newOrderNum); // возвращает массив с указанием новый мест для карты, для случая, когда карта oldOrderNum переместилась в позицию newOrderNum
     void changeCardOrder(const std::vector<size_t> &order2Place); // меняет orderNum всем картам своей руки так, как написано в передаваемом аргументе
+
+    // сообщение информации
+    void opponentTouched(size_t orderNum); // кликнута карта оппонента с порядковым номером orderNum
+    void infoNumTouched(size_t num); // кликнуто меню: сообщить инфу об указанном номинале
+    void infoColorTouched(char c); // кликнуто меню: сообщить инфу об указанном цвете
 
     // implement the "static create()" method manually
     CREATE_FUNC(Table);
