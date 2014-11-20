@@ -55,6 +55,11 @@ static Positions makeIph5Positions()
 	pos.dropF = Vec2(dropx0, 50);
 	pos.dropFDelta = Vec2(dropDx, 0);
 
+	// zones
+	pos.tableCenter = Rect(325, 175, 325, 175);
+	pos.dropZone = Rect(825, 50, 300, 525);
+	pos.changeZone = Rect(50, 0, 650, 125);
+
 	return pos;
 }
 

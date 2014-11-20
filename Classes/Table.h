@@ -2,6 +2,7 @@
 #define __TABLE_H__
 
 #include "cocos2d.h"
+#include <vector>
 
 /**
  * Сцена, которая отображает игровой стол.
@@ -48,6 +49,8 @@
  * Сказанная мне информация отображается на моих картах, пока я не сделаю ход (перемещение карт не считается ходом).
  */
 
+class MyCard;
+
 class Table : public cocos2d::Layer
 {
 public:
@@ -68,11 +71,24 @@ public:
 
     // выполнение команд полученных от сервера
     void newGame();
-    void take(size_t orderNum); // я взял карту из колоды
+    void take(size_t orderNum, size_t id); // я взял карту из колоды
     void take1(size_t orderNum, const std::string &image, size_t id); // оппонент берет карту из колоды
     void drop1(size_t id, char color, size_t serial); // оппонент сбросил указанную карту; и положить ее надо в сброс по указонному адресу
     void deck(size_t qty); // в деке осталось qty карт
     void takeDropTest(const std::string &image, char color, size_t serial);
+
+    // отослать команду серверу
+    void sendToServer(const std::string &cmd);
+
+    // сообщения от дочерних нодов
+    void cardPositionChanged(MyCard &draggingCard, cocos2d::Vec2 oldPos); // карту подвинули
+    void cardReleased(MyCard &card); // карту отпустили
+
+    // управление своими картами при перетаскивании
+    void moveAllInPlaces(size_t exceptOrderNum); // расставить свои карты по своим местам
+    static size_t calculateOrderNum(cocos2d::Vec2 cardPos); // вычисляет порядковый номер карты в руке по её положению
+    std::vector<size_t> calculateNewOrder(size_t oldOrderNum, size_t newOrderNum); // возвращает массив с указанием новый мест для карты, для случая, когда карта oldOrderNum переместилась в позицию newOrderNum
+    void changeCardOrder(const std::vector<size_t> &order2Place); // меняет orderNum всем картам своей руки так, как написано в передаваемом аргументе
 
     // implement the "static create()" method manually
     CREATE_FUNC(Table);

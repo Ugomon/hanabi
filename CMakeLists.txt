@@ -23,7 +23,7 @@ if (MSVC)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_CRT_SECURE_NO_WARNINGS")
 
 elseif (CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
-	set(CMAKE_C_FLAGS_DEBUG "-ggdb -Wall -DCOCOS2D_DEBUG=1")
+	set(CMAKE_C_FLAGS_DEBUG "-ggdb3 -gdwarf-3 -O0 -Wall -DCOCOS2D_DEBUG=1")
 	set(CMAKE_CXX_FLAGS_DEBUG ${CMAKE_C_FLAGS_DEBUG})
 
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99")
@@ -61,6 +61,7 @@ set(GAME_SRC
   Classes/Table.cpp
   Classes/Positions.cpp
   Classes/DragSprite.cpp
+  Classes/MyCard.cpp
 )
 elseif ( WIN32 )
 set(GAME_SRC

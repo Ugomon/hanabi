@@ -2,34 +2,17 @@
 
 using namespace cocos2d;
 
-MySprite::MySprite() {}
-
-MySprite::~MySprite() {}
-
-MySprite* MySprite::create(const std::string &name)
+DragSprite::DragSprite(const std::string &filename)
 {
-    MySprite* pSprite = new MySprite();
-
-    if (pSprite->initWithFile(name))
-    {
-        pSprite->autorelease();
-        pSprite->initOptions();
-        pSprite->addEvents();
-
-        pSprite->setName(name);
-        return pSprite;
-    }
-
-    CC_SAFE_DELETE(pSprite);
-    return NULL;
+    initWithFile(filename);
+	autorelease();
+	addEvents();
+	setName(filename);
 }
 
-void MySprite::initOptions()
-{
-    // do things here like setTag(), setPosition(), any custom logic.
-}
+DragSprite::~DragSprite() {}
 
-void MySprite::addEvents()
+void DragSprite::addEvents()
 {
     auto listener = cocos2d::EventListenerTouchOneByOne::create();
     listener->setSwallowTouches(true);
@@ -52,19 +35,21 @@ void MySprite::addEvents()
     	this->moveEvent(touch);
     };
 
-    listener->onTouchEnded = [](cocos2d::Touch* touch, cocos2d::Event* event)
+    listener->onTouchEnded = [&](cocos2d::Touch* touch, cocos2d::Event* event)
     {
         cocos2d::Vec2 p = touch->getLocation();
-        //MySprite::touchEvent(touch, p);
-        CCLOG("touched MySprite");
+        this->released();
+        //log("touched DragSprite");
     };
 
     //cocos2d::Director::getInstance()->getEventDispatcher()->addEventListenerWithFixedPriority(listener, 30);
     cocos2d::Director::getInstance()->getEventDispatcher()->addEventListenerWithSceneGraphPriority(listener, this);
 }
 
-void MySprite::moveEvent(cocos2d::Touch* touch)
+void DragSprite::moveEvent(cocos2d::Touch* touch)
 {
+	Vec2 oldPos = getPosition();
 	setPosition(getPosition() + touch->getDelta());
-    log("moved MySprite %s", getName().c_str());
+	positionChanged(oldPos);
+    //log("moved DragSprite %s", getName().c_str());
 }

@@ -2,8 +2,154 @@
 #include "Positions.h"
 #include "ui/UIButton.h"
 #include <functional>
+#include "MyCard.h"
+#include <vector>
 
 USING_NS_CC;
+
+void Table::sendToServer(const std::string &cmd)
+{
+	log("cmd to server:'%s'", cmd.c_str());
+}
+
+void Table::cardPositionChanged(MyCard &draggingCard, cocos2d::Vec2 oldPos)
+{
+    const Positions &pos = Positions::getPositions();
+	bool wasInsideHand = pos.changeZone.containsPoint(oldPos);
+	bool isInsideHand = pos.changeZone.containsPoint(draggingCard.getPosition());
+
+	if (isInsideHand)
+	{
+		// todo: переставлять карты не чаще, чем раз в 0.1 секунды
+
+		// расставить карты в руке освободив место перетаскиваемой карте
+		size_t newOrderNum = calculateOrderNum(draggingCard.getPosition());
+		auto order2Place = calculateNewOrder(draggingCard.getOrderNum(), newOrderNum);
+
+		auto cards = getChildByName("cards");
+		for (size_t id = 0; id < 5; ++id)
+		{
+			auto card = cards->getChildByName(StringUtils::format("%lu", id));
+			MyCard *myCard = dynamic_cast<MyCard *>(card);
+			if (myCard->getOrderNum() != draggingCard.getOrderNum()) // перетаскиваемую не трогаем. Расставляем остальные.
+			{
+				myCard->stopAllActions();
+				myCard->setPosition(pos.me + pos.meDelta * order2Place[myCard->getOrderNum()]);
+			}
+		}
+	}
+	else if (wasInsideHand) // outside now
+	{
+		// все карты, кроме данной вернуть на места
+		moveAllInPlaces(draggingCard.getOrderNum());
+	}
+}
+
+size_t Table::calculateOrderNum(cocos2d::Vec2 cardPos)
+{
+	int retVal = 0;
+    const Positions &pos = Positions::getPositions();
+    retVal = (int)(cardPos.x + pos.meDelta.x / 2 - pos.me.x) / (int)pos.meDelta.x;
+    if (retVal < 0) retVal = 0;
+    if (retVal > 4) retVal = 4;
+    return (size_t)retVal;
+}
+
+std::vector<size_t> Table::calculateNewOrder(size_t oldOrderNum, size_t newOrderNum)
+{
+	std::vector<size_t> order2Place = {0, 1, 2, 3, 4}; // место карты в зависимости от orderNum
+	int delta;
+	size_t minO, maxO; // границы изменения порядковых номеров
+	if (newOrderNum > oldOrderNum)
+	{
+		delta = -1; // у всех порядковый номер будет вычитаться
+		minO = oldOrderNum + 1;
+		maxO = newOrderNum;
+	}
+	else
+	{
+		delta = 1; // у всех порядковый номер будет прибавляться
+		minO = newOrderNum;
+		maxO = oldOrderNum - 1;
+	}
+
+	// изменить порядковые номера
+	for (size_t order = 0; order < 5; ++order)
+	{
+		if (order == oldOrderNum)
+		{
+			order2Place[order] = newOrderNum;
+		}
+		else if (minO <= order && order <= maxO)
+		{
+			order2Place[order] = order + delta;
+		}
+	}
+	return order2Place;
+}
+
+void Table::changeCardOrder(const std::vector<size_t> &order2Place)
+{
+	// пройтись по всей руке и изменить порядковые номера
+	auto cards = getChildByName("cards");
+	for (size_t id = 0; id < 5; ++id)
+	{
+		auto card = cards->getChildByName(StringUtils::format("%lu", id));
+		MyCard *myCard = dynamic_cast<MyCard *>(card);
+		size_t order = myCard->getOrderNum();
+		myCard->setOrderNum(order2Place[order]);
+	}
+}
+
+void Table::cardReleased(MyCard &card)
+{
+    const Positions &pos = Positions::getPositions();
+	log("card %lu released", card.getOrderNum());
+
+	// проверим нахождение в пределах середины стола, сброса и своей руки
+	if (pos.changeZone.containsPoint(card.getPosition()))
+	{
+		size_t newOrderNum = calculateOrderNum(card.getPosition());
+		if (newOrderNum != card.getOrderNum())
+		{
+			sendToServer(StringUtils::format("move %s %lu->%lu", card.getName().c_str(), card.getOrderNum(), newOrderNum));
+
+			auto order2Place = calculateNewOrder(card.getOrderNum(), newOrderNum);
+			changeCardOrder(order2Place);
+		}
+	}
+	else if (pos.tableCenter.containsPoint(card.getPosition()))
+	{
+		sendToServer(StringUtils::format("go %s", card.getName().c_str()));
+	}
+	else if (pos.dropZone.containsPoint(card.getPosition()))
+	{
+		sendToServer(StringUtils::format("drop %s", card.getName().c_str()));
+	}
+
+	// выбранную карту начать перемещать на место
+    auto move = MoveBy::create(1, pos.me + pos.meDelta * card.getOrderNum() - card.getPosition());
+    card.runAction(move);
+
+	// все карты, кроме данной вернуть на места
+	moveAllInPlaces(card.getOrderNum());
+}
+
+void Table::moveAllInPlaces(size_t exceptOrderNum)
+{
+    const Positions &pos = Positions::getPositions();
+	auto cards = getChildByName("cards");
+	for (size_t id = 0; id < 5; ++id)
+	{
+		auto card = cards->getChildByName(StringUtils::format("%lu", id));
+		MyCard *myCard = dynamic_cast<MyCard *>(card);
+		if (myCard->getOrderNum() != exceptOrderNum)
+		{
+			myCard->stopAllActions();
+			myCard->setPosition(pos.me + pos.meDelta * myCard->getOrderNum());
+		}
+	}
+}
 
 Scene* Table::createScene()
 {
@@ -104,7 +250,7 @@ bool Table::init()
 			auto errItem = Sprite::create("chip_red_is.png");
 			errItem->setPosition(pos.errDelta * i);
 			errItem->setScale(pos.errScale);
-			errItem->setName(StringUtils::format("%d", i));
+			errItem->setName(StringUtils::format("%lu", i));
 			if (i > 1) errItem->setVisible(false);
 			err->addChild(errItem, 1);
 		}
@@ -131,7 +277,7 @@ bool Table::init()
 			auto infoItem = Sprite::create("chip_blue_is.png");
 			infoItem->setPosition(pos.infoDelta * i);
 			infoItem->setScale(pos.infoScale);
-			infoItem->setName(StringUtils::format("%d", i));
+			infoItem->setName(StringUtils::format("%lu", i));
 			if (i > 5) infoItem->setVisible(false);
 			info->addChild(infoItem, 1);
 		}
@@ -191,7 +337,7 @@ void Table::drop1(size_t id, char color, size_t serial)
 	const Positions &pos = Positions::getPositions();
 
 	auto cards = getChildByName("cards");
-	auto card = cards->getChildByName(StringUtils::format("o%u", id));
+	auto card = cards->getChildByName(StringUtils::format("o%lu", id));
 	card->setName("");
 
 	Vec2 dropPos, dropDelta;
@@ -290,22 +436,22 @@ void Table::newGame()
 	take1(3, "r5", 3);
 	take1(4, "g2", 4);
 
-	take(0);
-	take(1);
-	take(2);
-	take(3);
-	take(4);
+	take(0, 0);
+	take(1, 1);
+	take(2, 2);
+	take(3, 3);
+	take(4, 4);
 }
 
-// TODO надо назначать с сервера Name(==id) для этой карты (для манипуляций)
-void Table::take(size_t orderNum)
+void Table::take(size_t orderNum, size_t id)
 {
 	const Positions &pos = Positions::getPositions();
 
-    auto card = Sprite::create("card_back.png");
+    auto card = new MyCard("card_back.png", orderNum, *this);
     card->setAnchorPoint(Vec2::ZERO);
     card->setScale(Positions::getPositions().cardSpriteScale);
 	card->setPosition(pos.deck);
+	card->setName(StringUtils::format("%lu", id));
 
 	auto cards = getChildByName("cards");
 	cards->addChild(card);
@@ -320,7 +466,7 @@ void Table::take1(size_t orderNum, const std::string &image, size_t id)
 
 	Sprite *card = loadCardSprite(image);
 	card->setPosition(pos.deck);
-	card->setName(StringUtils::format("o%u", id));
+	card->setName(StringUtils::format("o%lu", id));
 
 	auto cards = getChildByName("cards");
 	cards->addChild(card);

@@ -1,22 +1,30 @@
-#ifndef _MYSPRITE_HPP_
-#define _MYSPRITE_HPP_
+#ifndef _DRAGSPRITE_HPP_
+#define _DRAGSPRITE_HPP_
+
+/**
+ * Таскаемый спрайт.
+ * Применяется для карт своей руки.
+ * Карты своей руки можно таскать мышкой по экрану.
+ * Это используется для большинства игровых действий.
+ *
+ * См. функции positionChanged() и released().
+ */
 
 #include "cocos2d.h"
 
-class MySprite : public cocos2d::Sprite
+class DragSprite : public cocos2d::Sprite
 {
     public:
-        MySprite();
-        ~MySprite();
-        static MySprite* create(const std::string &name);
-
-        void initOptions();
+		DragSprite(const std::string &filename);
+        ~DragSprite();
 
         void addEvents();
         void moveEvent(cocos2d::Touch* touch);
 
+        virtual void positionChanged(cocos2d::Vec2 oldPos) {} // вызывается при каждом смещении спрайта
+        virtual void released() {} // вызывается при отпускании спрайта (используется для выравнивания отпущенного спрайта)
     private:
 
 };
 
-#endif // _MYSPRITE_HPP_
+#endif // _DRAGSPRITE_HPP_
