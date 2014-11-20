@@ -5,6 +5,8 @@
 #include "MyCard.h"
 #include <vector>
 #include "base/CCVector.h"
+#include <fstream>
+#include <string>
 
 USING_NS_CC;
 
@@ -357,7 +359,13 @@ bool Table::init()
 		});
 		labelItem1->setPosition(Vec2(50, 100));
 
-		auto menuLabel = Menu::create(labelItem, labelItem1, nullptr);
+		auto label2 = Label::createWithSystemFont("Step", "Arial", 48);
+		MenuItemLabel *labelItem2 = MenuItemLabel::create(label2,[&](Ref* sender){
+			this->cmdNext();
+		});
+		labelItem2->setPosition(Vec2(50, 50));
+
+		auto menuLabel = Menu::create(labelItem, labelItem1, labelItem2, nullptr);
 		menuLabel->setPosition(Vec2::ZERO);
 		this->addChild(menuLabel, 20);
     }
@@ -383,6 +391,9 @@ bool Table::init()
 		menu->setPosition(Vec2::ZERO);
 		addChild(menu, 20);
     }
+
+    // открыть файл эмулятора команд от сервера
+    cmdEmulator = new std::ifstream("Resources/cmd_emulator.txt");
 
     return true;
 }
@@ -428,18 +439,17 @@ void Table::opponentTouched(size_t orderNum)
 	}
 
 	// создать айтемы цветов
-	std::vector<char> colors = {'r', 'g', 'b', 'y', 'w', 'f'};
-	for (size_t i = 0; i < colors.size(); ++i)
+	for (size_t i = 0; i < allColors.size(); ++i)
 	{
 		auto numItem = MenuItemImage::create("card_face.png", "card_face.png", [=](Ref* sender){
-			this->infoColorTouched(colors[i]);
+			this->infoColorTouched(allColors[i]);
 		});
 		numItem->setPosition(pos.colorMenu + pos.colorMenuDelta * i);
 		numItem->setAnchorPoint(Vec2::ZERO);
 		numItem->setScale(pos.cardSpriteScale);
 
 		// приделать цвет
-		auto numSprite = loadColorSprite(colors[i]);
+		auto numSprite = loadColorSprite(allColors[i]);
 		numItem->addChild(numSprite, 1);
 
 		arrayOfItems.pushBack(numItem);
@@ -595,16 +605,27 @@ void Table::take1(size_t orderNum, const std::string &image, size_t id)
     card->runAction(move);
 }
 
-void Table::menuCloseCallback(Ref* pSender)
+void Table::cmdNext()
 {
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_WP8) || (CC_TARGET_PLATFORM == CC_PLATFORM_WINRT)
-	MessageBox("You pressed the close button. Windows Store Apps do not implement a close button.","Alert");
-    return;
-#endif
-
-    Director::getInstance()->end();
-
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
-    exit(0);
-#endif
+	std::string line;
+	std::getline(*cmdEmulator, line);
+	cmdFromServer(line.c_str());
+	//cmdFromServer("dropOp 1, 5, 2;");
 }
+
+void Table::cmdFromServer(const std::string &cmd)
+{
+	const char *p = cmd.c_str();
+	size_t id, color, serial;
+	log("cmd from server: '%s'", p);
+	if (sscanf(p, "dropOp %lu, %lu, %lu;", &id, &color, &serial) == 3)
+	{
+		drop1(id, allColors[color], serial);
+	}
+	else
+	{
+		log("unknown cmd from server: '%s'", p);
+	}
+}
+
+const std::vector<char> Table::allColors = {'r', 'g', 'b', 'y', 'w', 'f'};

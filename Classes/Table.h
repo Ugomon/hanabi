@@ -3,6 +3,7 @@
 
 #include "cocos2d.h"
 #include <vector>
+#include <iostream>
 
 /**
  * —цена, котора€ отображает игровой стол.
@@ -60,9 +61,17 @@ public:
     // Here's a difference. Method 'init' in cocos2d-x returns bool, instead of returning 'id' in cocos2d-iphone
     virtual bool init();  
 
-    // a selector callback
-    void menuCloseCallback(cocos2d::Ref* pSender);
+    // сообщени€ от дочерних нодов
+    void cardPositionChanged(MyCard &draggingCard, cocos2d::Vec2 oldPos); // карту подвинули
+    void cardReleased(MyCard &card); // карту отпустили
+
+    // implement the "static create()" method manually
+    CREATE_FUNC(Table);
+
+    //
+    static const std::vector<char> allColors; // символы цветов в стандартном пор€дке
     
+protected:
     // стандартное добавление безим€нных спрайтов на стол
     void addCardSprite(const std::string &filename, cocos2d::Vec2 pos, int z);
 
@@ -76,6 +85,8 @@ public:
     cocos2d::Sprite *loadColorSprite(char c);
 
     // выполнение команд полученных от сервера
+    void cmdFromServer(const std::string &cmd);
+    void cmdNext(); // выполнить следующую команду из файла. »спользуетс€ дл€ тестов.
     void newGame();
     void take(size_t orderNum, size_t id); // € вз€л карту из колоды
     void take1(size_t orderNum, const std::string &image, size_t id); // оппонент берет карту из колоды
@@ -85,10 +96,6 @@ public:
 
     // отослать команду серверу
     void sendToServer(const std::string &cmd);
-
-    // сообщени€ от дочерних нодов
-    void cardPositionChanged(MyCard &draggingCard, cocos2d::Vec2 oldPos); // карту подвинули
-    void cardReleased(MyCard &card); // карту отпустили
 
     // управление своими картами при перетаскивании
     void moveAllInPlaces(size_t exceptOrderNum); // расставить свои карты по своим местам
@@ -101,8 +108,8 @@ public:
     void infoNumTouched(size_t num); // кликнуто меню: сообщить инфу об указанном номинале
     void infoColorTouched(char c); // кликнуто меню: сообщить инфу об указанном цвете
 
-    // implement the "static create()" method manually
-    CREATE_FUNC(Table);
+private:
+    std::istream *cmdEmulator; // файл с командами дл€ эмул€ции сервера
 };
 
 #endif // __TABLE_H__
