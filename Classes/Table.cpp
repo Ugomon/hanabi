@@ -608,9 +608,11 @@ void Table::take1(size_t orderNum, const std::string &image, size_t id)
 void Table::cmdNext()
 {
 	std::string line;
-	std::getline(*cmdEmulator, line);
-	cmdFromServer(line.c_str());
-	//cmdFromServer("dropOp 1, 5, 2;");
+	do
+	{
+		std::getline(*cmdEmulator, line);
+		cmdFromServer(line.c_str());
+	} while (!line.empty());
 }
 
 void Table::cmdFromServer(const std::string &cmd)
