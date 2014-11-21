@@ -62,6 +62,7 @@ set(GAME_SRC
   Classes/Positions.cpp
   Classes/DragSprite.cpp
   Classes/MyCard.cpp
+  Classes/Server.cpp
 )
 elseif ( WIN32 )
 set(GAME_SRC
