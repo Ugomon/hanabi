@@ -14,10 +14,10 @@ DragSprite::~DragSprite() {}
 
 void DragSprite::addEvents()
 {
-    auto listener = cocos2d::EventListenerTouchOneByOne::create();
+    listener = cocos2d::EventListenerTouchOneByOne::create();
     listener->setSwallowTouches(true);
 
-    listener->onTouchBegan = [](cocos2d::Touch* touch, cocos2d::Event* event)
+    listener->onTouchBegan = [this](cocos2d::Touch* touch, cocos2d::Event* event)
     {
         cocos2d::Vec2 p = touch->getLocation();
         cocos2d::Rect rect = event->getCurrentTarget()->getBoundingBox();
@@ -31,7 +31,6 @@ void DragSprite::addEvents()
 
     listener->onTouchMoved = [&](cocos2d::Touch* touch, cocos2d::Event* event)
     {
-    	//log ("sprite %s moved", event->getCurrentTarget()->getName().c_str());
     	this->moveEvent(touch);
     };
 
@@ -39,11 +38,21 @@ void DragSprite::addEvents()
     {
         cocos2d::Vec2 p = touch->getLocation();
         this->released();
-        //log("touched DragSprite");
     };
 
-    //cocos2d::Director::getInstance()->getEventDispatcher()->addEventListenerWithFixedPriority(listener, 30);
-    cocos2d::Director::getInstance()->getEventDispatcher()->addEventListenerWithSceneGraphPriority(listener, this);
+    setDragEnabled(true);
+}
+
+void DragSprite::setDragEnabled(bool val)
+{
+	if (val)
+	{
+	    cocos2d::Director::getInstance()->getEventDispatcher()->addEventListenerWithSceneGraphPriority(listener, this);
+	}
+	else
+	{
+	    cocos2d::Director::getInstance()->getEventDispatcher()->removeEventListenersForTarget(this);
+	}
 }
 
 void DragSprite::moveEvent(cocos2d::Touch* touch)
@@ -51,5 +60,4 @@ void DragSprite::moveEvent(cocos2d::Touch* touch)
 	Vec2 oldPos = getPosition();
 	setPosition(getPosition() + touch->getDelta());
 	positionChanged(oldPos);
-    //log("moved DragSprite %s", getName().c_str());
 }

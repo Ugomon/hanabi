@@ -35,6 +35,7 @@ struct Positions
 	cocos2d::Vec2 salutY;
 	cocos2d::Vec2 salutW;
 	cocos2d::Vec2 salutF;
+	cocos2d::Vec2 getSalut(char c) const;
 
 	// своя рука
 	cocos2d::Vec2 me; // первая моя карта
@@ -58,6 +59,8 @@ struct Positions
 	cocos2d::Vec2 dropWDelta;
 	cocos2d::Vec2 dropF;
 	cocos2d::Vec2 dropFDelta;
+	cocos2d::Vec2 getDrop(char c) const;
+	cocos2d::Vec2 getDropDelta(char c) const;
 
 	// zones
 	cocos2d::Rect tableCenter; // зона, отпускание в которой считается ходом

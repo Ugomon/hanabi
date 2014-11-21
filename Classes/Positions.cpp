@@ -75,3 +75,62 @@ const Positions &Positions::getPositions()
 	return iph5Positions;
 }
 
+cocos2d::Vec2 Positions::getSalut(char c) const
+{
+	switch(c)
+	{
+	default:
+	case 'r':
+		return salutR;
+	case 'g':
+		return salutG;
+	case 'b':
+		return salutB;
+	case 'y':
+		return salutY;
+	case 'w':
+		return salutW;
+	case 'f':
+		return salutF;
+	}
+}
+
+cocos2d::Vec2 Positions::getDrop(char c) const
+{
+	switch(c)
+	{
+	default:
+	case 'r':
+		return dropR;
+	case 'g':
+		return dropG;
+	case 'b':
+		return dropB;
+	case 'y':
+		return dropY;
+	case 'w':
+		return dropW;
+	case 'f':
+		return dropF;
+	}
+}
+
+cocos2d::Vec2 Positions::getDropDelta(char c) const
+{
+	switch(c)
+	{
+	default:
+	case 'r':
+		return dropRDelta;
+	case 'g':
+		return dropGDelta;
+	case 'b':
+		return dropBDelta;
+	case 'y':
+		return dropYDelta;
+	case 'w':
+		return dropWDelta;
+	case 'f':
+		return dropFDelta;
+	}
+}

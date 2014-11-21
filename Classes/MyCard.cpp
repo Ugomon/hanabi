@@ -13,6 +13,17 @@ MyCard::~MyCard()
 {
 }
 
+bool MyCard::reinit(const std::string &filename)
+{
+	auto ap = getAnchorPoint();
+	bool res = initWithFile(filename);
+	if (res)
+	{
+		setAnchorPoint(ap);
+	}
+	return res;
+}
+
 void MyCard::positionChanged(cocos2d::Vec2 oldPos)
 {
 	//log("pos changed");

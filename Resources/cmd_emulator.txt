@@ -1,3 +1,24 @@
+new_game 5;
+
+take 0, 0;
+take 1, 1;
+take 2, 2;
+take 3, 3;
+take 4, 4;
+
+revealDeck y4;
+takeOp 0, 0;
+revealDeck r1;
+takeOp 1, 1;
+revealDeck w2;
+takeOp 2, 2;
+revealDeck b3;
+takeOp 3, 3;
+revealDeck w4;
+takeOp 4, 4;
+
+reveal 3, r3;
+
 dropOp 2, 4, 6;
 dropOp 1, 5, 2;
 

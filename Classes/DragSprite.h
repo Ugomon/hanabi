@@ -21,10 +21,13 @@ class DragSprite : public cocos2d::Sprite
         void addEvents();
         void moveEvent(cocos2d::Touch* touch);
 
+        void setDragEnabled(bool val); // включить или выключить перетаскивание
+
         virtual void positionChanged(cocos2d::Vec2 oldPos) {} // вызывается при каждом смещении спрайта
         virtual void released() {} // вызывается при отпускании спрайта (используется для выравнивания отпущенного спрайта)
-    private:
 
+    private:
+        cocos2d::EventListenerTouchOneByOne *listener;
 };
 
 #endif // _DRAGSPRITE_HPP_

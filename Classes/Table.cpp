@@ -170,13 +170,14 @@ Scene* Table::createScene()
     return scene;
 }
 
-void Table::addCardSprite(const std::string &filename, cocos2d::Vec2 pos, int z)
+Sprite *Table::addCardSprite(const std::string &filename, cocos2d::Vec2 pos, int z)
 {
     auto sprite = Sprite::create(filename);
     sprite->setAnchorPoint(Vec2::ZERO);
     sprite->setPosition(pos);
     sprite->setScale(Positions::getPositions().cardSpriteScale);
     this->addChild(sprite, z);
+    return sprite;
 }
 
 cocos2d::Sprite *Table::loadNumSprite(size_t num)
@@ -205,42 +206,14 @@ cocos2d::Sprite *Table::loadColorSprite(char c)
 	case 'f':
 		color = "rainbow"; break;
 	}
-    auto sprite = Sprite::create(StringUtils::format("is_%s.png", color.c_str()));
+    auto sprite = Sprite::create(StringUtils::format("is_%c.png", c));
     sprite->setAnchorPoint(Vec2::ZERO);
-    //sprite->setScale(Positions::getPositions().cardSpriteScale);
     return sprite;
 }
 
 Sprite *Table::loadCardSprite(const std::string &image)
 {
-	int num = 1;
-	std::string color = "red";
-	if (image.length() == 2)
-	{
-		switch(image.at(0))
-		{
-		case 'r':
-			color = "red"; break;
-		case 'g':
-			color = "green"; break;
-		case 'b':
-			color = "blue"; break;
-		case 'y':
-			color = "yellow"; break;
-		case 'w':
-			color = "white"; break;
-		case 'f':
-			color = "rainbow"; break;
-		}
-
-		num = image.at(1) - '0';
-		if (1 > num || num > 5)
-		{
-			num = 1;
-		}
-	}
-
-    auto sprite = Sprite::create(StringUtils::format("%d_%s.png", num, color.c_str()));
+    auto sprite = Sprite::create(image + ".png");
     sprite->setAnchorPoint(Vec2::ZERO);
     sprite->setScale(Positions::getPositions().cardSpriteScale);
     return sprite;
@@ -320,23 +293,20 @@ bool Table::init()
     }
 
     // add salutes
-    addCardSprite("card_face.png", pos.salutR, -2);
-    addCardSprite("is_red.png", pos.salutR, -1);
+	for (size_t i = 0; i < allColors.size(); ++i)
+	{
+		char c = allColors[i];
 
-    addCardSprite("card_face.png", pos.salutG, -2);
-    addCardSprite("is_green.png", pos.salutG, -1);
+		// нарисовать место для карты
+		auto colorPlace = addCardSprite("card_face.png", pos.getSalut(c), -2);
+		colorPlace->setName(std::string(1, c)); // именем будет буква цвета
 
-    addCardSprite("card_face.png", pos.salutB, -2);
-    addCardSprite("is_blue.png", pos.salutB, -1);
-
-    addCardSprite("card_face.png", pos.salutY, -2);
-    addCardSprite("is_yellow.png", pos.salutY, -1);
-
-    addCardSprite("card_face.png", pos.salutW, -2);
-    addCardSprite("is_white.png", pos.salutW, -1);
-
-    addCardSprite("card_face.png", pos.salutF, -2);
-    addCardSprite("is_rainbow.png", pos.salutF, -1);
+		// сверху приделать цветную рамку
+	    auto sprite = Sprite::create(StringUtils::format("is_%c.png", c));
+	    sprite->setAnchorPoint(Vec2::ZERO);
+	    sprite->setPosition(Vec2::ZERO);
+	    colorPlace->addChild(sprite, 1);
+	}
 
     // create Cards Node
     auto cards = Node::create();
@@ -566,28 +536,11 @@ void Table::newGame()
 	take1(3, "r5", 3);
 	take1(4, "g2", 4);
 
-	take(0, 0);
+	/*take(0, 0);
 	take(1, 1);
 	take(2, 2);
 	take(3, 3);
-	take(4, 4);
-}
-
-void Table::take(size_t orderNum, size_t id)
-{
-	const Positions &pos = Positions::getPositions();
-
-    auto card = new MyCard("card_back.png", orderNum, *this);
-    card->setAnchorPoint(Vec2::ZERO);
-    card->setScale(Positions::getPositions().cardSpriteScale);
-	card->setPosition(pos.deck);
-	card->setName(StringUtils::format("%lu", id));
-
-	auto cards = getChildByName("cards");
-	cards->addChild(card);
-
-    auto move = MoveTo::create(1, pos.me + pos.meDelta * orderNum);
-    card->runAction(move);
+	take(4, 4);*/
 }
 
 void Table::take1(size_t orderNum, const std::string &image, size_t id)
@@ -618,9 +571,30 @@ void Table::cmdNext()
 void Table::cmdFromServer(const std::string &cmd)
 {
 	const char *p = cmd.c_str();
-	size_t id, color, serial;
+	size_t id, color, serial, colorQty, orderNum;
+	char image[128];
 	log("cmd from server: '%s'", p);
-	if (sscanf(p, "dropOp %lu, %lu, %lu;", &id, &color, &serial) == 3)
+	if (sscanf(p, "new_game %lu;", &colorQty) == 1)
+	{
+		newGame(colorQty);
+	}
+	else if (sscanf(p, "take %lu, %lu;", &id, &orderNum) == 2)
+	{
+		take(id, orderNum);
+	}
+	else if (sscanf(p, "takeOp %lu, %lu;", &id, &orderNum) == 2)
+	{
+		takeOp(id, orderNum);
+	}
+	else if (sscanf(p, "reveal %lu, %[rbgywf1-5];", &id, image) == 2)
+	{
+		reveal(id, image);
+	}
+	else if (sscanf(p, "revealDeck %[rbgywf1-5];", image) == 1)
+	{
+		revealDeck(image);
+	}
+	else if (sscanf(p, "dropOp %lu, %lu, %lu;", &id, &color, &serial) == 3)
 	{
 		drop1(id, allColors[color], serial);
 	}
@@ -631,3 +605,70 @@ void Table::cmdFromServer(const std::string &cmd)
 }
 
 const std::vector<char> Table::allColors = {'r', 'g', 'b', 'y', 'w', 'f'};
+
+void Table::newGame(size_t colorQty)
+{
+	for (size_t i = 0; i < allColors.size(); ++i)
+	{
+		char c = allColors[i];
+		auto colorPlace = getChildByName(std::string(1, c));
+		colorPlace->setVisible(i < colorQty);
+	}
+}
+
+void Table::take(size_t id, size_t orderNum)
+{
+	const Positions &pos = Positions::getPositions();
+
+    auto card = new MyCard("card_back.png", orderNum, *this);
+    card->setAnchorPoint(Vec2::ZERO);
+    card->setScale(Positions::getPositions().cardSpriteScale);
+	card->setPosition(pos.deck);
+	card->setName(StringUtils::format("%lu", id));
+
+	auto cards = getChildByName("cards");
+	cards->addChild(card);
+
+    auto move = MoveBy::create(1, pos.me + pos.meDelta * orderNum - pos.deck);
+    card->runAction(move);
+}
+
+void Table::takeOp(size_t id, size_t orderNum)
+{
+	const Positions &pos = Positions::getPositions();
+
+	auto cards = getChildByName("cards");
+	auto deckCard = cards->getChildByName("deck"); // карта должна быть предварительно предъявлена : revealDeck()
+	deckCard->setName(StringUtils::format("o%lu", id));
+
+    auto move = MoveBy::create(1, pos.opponent + pos.opponentDelta * orderNum - pos.deck);
+    deckCard->runAction(move);
+}
+
+void Table::reveal(size_t id, const std::string &image)
+{
+	// расставим все по своим местам на случай, если передвигали в это время
+	moveAllInPlaces(100); //всех расставить
+
+	auto cards = getChildByName("cards");
+	auto card = cards->getChildByName(StringUtils::format("%lu", id));
+	MyCard *myCard = dynamic_cast<MyCard *>(card);
+
+	// заменить картинку
+	myCard->reinit(StringUtils::format("%s.png", image.c_str()));
+	myCard->setDragEnabled(false);
+}
+
+void Table::revealDeck(const std::string &image)
+{
+	const Positions &pos = Positions::getPositions();
+
+	// создать карту и установить на колоду
+	Sprite *card = loadCardSprite(image);
+	card->setPosition(pos.deck);
+	card->setName("deck");
+
+	// добавить в контейнер карт
+	auto cards = getChildByName("cards");
+	cards->addChild(card);
+}

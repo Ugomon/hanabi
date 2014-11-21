@@ -27,8 +27,10 @@
  * "err" - все жетоны ошибок; спрайты ошибок подвешены к этому ноду с именами 0,1,2
  * "info" - все жетоны подсказок; спрайты подсказок подвешены к этому ноду с именами 0,1,2,3,4,5,6,7
  * "cards" - все карты взятые из колоды подвешиваются к этому ноду; для очистки стола достаточно удалить всех чилдов у этого нода
+ * "deck" - уже открытая карта, которая лежит на вершине колоды; приделана к "cards"
  * "o0",..,"o4" - карты на руках у оппонента
  * "0",..,"4" - карты в моей руке
+ * "r", "g",..., "f" - места для цветов в центре стола
  *
  * Терминология.
  * image - текст вида: "r2" или "w5". Однозначно определяет изображение карты.
@@ -75,7 +77,7 @@ public:
     
 protected:
     // стандартное добавление безимянных спрайтов на стол
-    void addCardSprite(const std::string &filename, cocos2d::Vec2 pos, int z);
+    cocos2d::Sprite *addCardSprite(const std::string &filename, cocos2d::Vec2 pos, int z);
 
     // получить спрайт карты по image
     cocos2d::Sprite *loadCardSprite(const std::string &image);
@@ -86,15 +88,21 @@ protected:
     // получить спрайт карты по цвету
     cocos2d::Sprite *loadColorSprite(char c);
 
-    // выполнение команд полученных от сервера
-    void cmdFromServer(const std::string &cmd);
+    // выполнение команд полученных от сервера (управляющие функции)
+    void cmdFromServer(const std::string &cmd); // полученную команду распарсить и отправить на выполнение
     void cmdNext(); // выполнить следующую команду из файла. Используется для тестов.
     void newGame();
-    void take(size_t orderNum, size_t id); // я взял карту из колоды
     void take1(size_t orderNum, const std::string &image, size_t id); // оппонент берет карту из колоды
     void drop1(size_t id, char color, size_t serial); // оппонент сбросил указанную карту; и положить ее надо в сброс по указонному адресу
     void deck(size_t qty); // в деке осталось qty карт
     void takeDropTest(const std::string &image, char color, size_t serial);
+
+    // обработка команд от сервера
+    void newGame(size_t colorQty); // Очистить стол для новой игры. colorQty - количество цветов в новой игре.
+    void take(size_t id, size_t orderNum); // я взял карту из колоды
+    void takeOp(size_t id, size_t orderNum); // оппонент взял карту из колоды
+    void reveal(size_t id, const std::string &image); // открыть свою карту
+    void revealDeck(const std::string &image); // открыть верхнюю карту в колоде
 
     // отослать команду серверу
     void sendToServer(const std::string &cmd);

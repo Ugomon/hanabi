@@ -14,6 +14,7 @@ class MyCard : public DragSprite
 	public:
 		MyCard(const std::string &filename, size_t orderNum, Table &table);
 		~MyCard();
+		bool reinit(const std::string &filename);
 
         virtual void positionChanged(cocos2d::Vec2 oldPos) override;
         virtual void released() override;
