@@ -444,7 +444,27 @@ void Table::opponentTouched(size_t orderNum)
 	addChild(menu, 30);
 }
 
-void Table::drop1(size_t id, char color, size_t serial)
+void Table::drop(size_t id, char c, size_t serial)
+{
+	const Positions &pos = Positions::getPositions();
+
+	auto cards = getChildByName("cards");
+	auto card = cards->getChildByName(StringUtils::format("%lu", id));
+	card->setName("");
+
+	Vec2 dropPos = pos.getDrop(c);
+	Vec2 dropDelta = pos.getDropDelta(c);
+	Vec2 res = dropPos + dropDelta * serial;
+
+	card->stopAllActions();
+    auto move = MoveTo::create(1, res);
+    card->runAction(move);
+
+    auto scale = ScaleTo::create(1, pos.dropScale);
+    card->runAction(scale);
+}
+
+void Table::dropOp(size_t id, char c, size_t serial)
 {
 	const Positions &pos = Positions::getPositions();
 
@@ -452,39 +472,12 @@ void Table::drop1(size_t id, char color, size_t serial)
 	auto card = cards->getChildByName(StringUtils::format("o%lu", id));
 	card->setName("");
 
-	Vec2 dropPos, dropDelta;
-	switch(color)
-	{
-	default:
-	case 'r':
-		dropPos = pos.dropR;
-		dropDelta = pos.dropRDelta;
-		break;
-	case 'g':
-		dropPos = pos.dropG;
-		dropDelta = pos.dropGDelta;
-		break;
-	case 'b':
-		dropPos = pos.dropB;
-		dropDelta = pos.dropBDelta;
-		break;
-	case 'y':
-		dropPos = pos.dropY;
-		dropDelta = pos.dropYDelta;
-		break;
-	case 'w':
-		dropPos = pos.dropW;
-		dropDelta = pos.dropWDelta;
-		break;
-	case 'f':
-		dropPos = pos.dropF;
-		dropDelta = pos.dropFDelta;
-		break;
-	}
-
+	Vec2 dropPos = pos.getDrop(c);
+	Vec2 dropDelta = pos.getDropDelta(c);
 	Vec2 res = dropPos + dropDelta * serial;
-	Vec2 originalPos = pos.opponent + pos.opponentDelta * id;
-    auto move = MoveBy::create(1, res - originalPos);
+
+	card->stopAllActions();
+    auto move = MoveTo::create(1, res);
     card->runAction(move);
 
     auto scale = ScaleTo::create(1, pos.dropScale);
@@ -494,23 +487,12 @@ void Table::drop1(size_t id, char color, size_t serial)
 void Table::takeDropTest(const std::string &image, char color, size_t serial)
 {
 	take1(0, image, 0);
-	drop1(0, color, serial);
+	dropOp(0, color, serial);
 }
 
 void Table::deck(size_t qty)
 {
 	log("drop");
-	//drop1(0, 'r', 0);
-	/*take1(0, "g1", 0);
-	drop1(0, 'r', 1);
-	take1(0, "b1", 0);
-	drop1(0, 'r', 2);
-	//take1(0, "y2", 0);
-
-	takeDropTest("w1", 'r', 3);*/
-
-	//takeDropTest("r2", 'r', 3);
-
 
 	char colors[] = "rgbyw";
 	for(size_t cc = 0; cc < sizeof(colors) - 1; ++cc)
@@ -583,9 +565,11 @@ void Table::cmdNext()
 void Table::cmdFromServer(const std::string &cmd)
 {
 	const char *p = cmd.c_str();
-	size_t id, color, serial, colorQty, orderNum;
+	size_t id, serial, colorQty, orderNum;
+	char c[128];
 	char image[128];
 	log("cmd from server: '%s'", p);
+
 	if (sscanf(p, "new_game %lu;", &colorQty) == 1)
 	{
 		newGame(colorQty);
@@ -606,9 +590,13 @@ void Table::cmdFromServer(const std::string &cmd)
 	{
 		revealDeck(image);
 	}
-	else if (sscanf(p, "dropOp %lu, %lu, %lu;", &id, &color, &serial) == 3)
+	else if (sscanf(p, "drop %lu, %[rgbywf], %lu;", &id, c, &serial) == 3)
 	{
-		drop1(id, allColors[color], serial);
+		drop(id, c[0], serial);
+	}
+	else if (sscanf(p, "dropOp %lu, %[rgbywf], %lu;", &id, c, &serial) == 3)
+	{
+		dropOp(id, c[0], serial);
 	}
 	else
 	{

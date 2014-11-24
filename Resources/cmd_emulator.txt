@@ -18,6 +18,13 @@ revealDeck w4;
 takeOp 4, 4;
 
 reveal 3, r3;
+drop 3, r, 5;
+take 3, 3;
+
+dropOp 0, y, 7;
+
+revealDeck g1;
+takeOp 0, 0;
 
 dropOp 2, 4, 6;
 dropOp 1, 5, 2;

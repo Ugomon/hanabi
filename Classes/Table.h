@@ -93,7 +93,9 @@ protected:
     void cmdNext(); // выполнить следующую команду из файла. Используется для тестов.
     void newGame();
     void take1(size_t orderNum, const std::string &image, size_t id); // оппонент берет карту из колоды
-    void drop1(size_t id, char color, size_t serial); // оппонент сбросил указанную карту; и положить ее надо в сброс по указонному адресу
+    void drop(size_t id, char c, size_t serial); // я сбросил указанную карту; и положить ее надо в сброс по указонному адресу
+    void dropOp(size_t id, char c, size_t serial); // оппонент сбросил указанную карту; и положить ее надо в сброс по указонному адресу
+
     void deck(size_t qty); // в деке осталось qty карт
     void takeDropTest(const std::string &image, char color, size_t serial);
 
