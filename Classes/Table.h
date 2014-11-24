@@ -97,6 +97,8 @@ protected:
     void take1(size_t orderNum, const std::string &image, size_t id); // оппонент берет карту из колоды
     void dropAll(); // заполнить весь сброс (функция для тестов)
     void takeDropTest(const std::string &image, char color, size_t serial);
+    void clearShowInfo(); // удалить отображение информации о моих картах
+    void moveAllInPlacesOp(); // расставить все карты оппонента по местам
 
     // обработка команд от сервера
     void newGame(size_t colorQty); // Очистить стол для новой игры. colorQty - количество цветов в новой игре.
@@ -112,7 +114,7 @@ protected:
     void turn(size_t side); // Сейчас ход: 0 - мой, 1 - оппонента.
     void showNum(size_t num, const std::string &orderMask); // показать, где у меня расположены карты достоинством num (orderMask: '00101')
     void showColor(char c, const std::string &orderMask); // показать, где у меня расположены карты цвета c (orderMask: '00101')
-    void clearShowInfo(); // удалить отображение информации о моих картах
+    void moveOp(size_t id, size_t newOrderNum); // оппонент передвинул карту id на позицию newOrderNum
 
     // отослать команду серверу
     void sendToServer(const std::string &cmd);
@@ -120,7 +122,7 @@ protected:
     // управление своими картами при перетаскивании
     void moveAllInPlaces(size_t exceptOrderNum); // расставить свои карты по своим местам
     static size_t calculateOrderNum(cocos2d::Vec2 cardPos); // вычисляет порядковый номер карты в руке по её положению
-    std::vector<size_t> calculateNewOrder(size_t oldOrderNum, size_t newOrderNum); // возвращает массив с указанием новый мест для карты, для случая, когда карта oldOrderNum переместилась в позицию newOrderNum
+    static std::vector<size_t> calculateNewOrder(size_t oldOrderNum, size_t newOrderNum); // возвращает массив с указанием новый мест для карты, для случая, когда карта oldOrderNum переместилась в позицию newOrderNum
     void changeCardOrder(const std::vector<size_t> &order2Place); // меняет orderNum всем картам своей руки так, как написано в передаваемом аргументе
 
     // сообщение информации

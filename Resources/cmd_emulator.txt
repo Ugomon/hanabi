@@ -19,6 +19,12 @@ takeOp 3, 3;
 revealDeck w4;
 takeOp 4, 4;
 
+moveOp 0, 1;
+
+moveOp 4, 2;
+
+moveOp 2, 1;
+
 show 2, 00101;
 
 show 4, 01000;

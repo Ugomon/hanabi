@@ -641,6 +641,10 @@ void Table::cmdFromServer(const std::string &cmd)
 	{
 		showColor(c[0], orderMask);
 	}
+	else if (sscanf(p, "moveOp %lu, %lu;", &id, &orderNum) == 2)
+	{
+		moveOp(id, orderNum);
+	}
 	else
 	{
 		log("unknown cmd from server: '%s'", p);
@@ -683,6 +687,7 @@ void Table::takeOp(size_t id, size_t orderNum)
 	auto cards = getChildByName("cards");
 	auto deckCard = cards->getChildByName("deck"); // карта должна быть предварительно предъявлена : revealDeck()
 	deckCard->setName(StringUtils::format("o%lu", id));
+	deckCard->setTag((int)orderNum);
 
     auto move = MoveBy::create(1, pos.opponent + pos.opponentDelta * orderNum - pos.deck);
     deckCard->runAction(move);
@@ -814,5 +819,41 @@ void Table::showColor(char c, const std::string &orderMask)
 	    sprite->setPosition(Vec2::ZERO);
 	    sprite->setName("info");
 	    myCard->addChild(sprite, 1);
+	}
+}
+
+void Table::moveAllInPlacesOp()
+{
+    const Positions &pos = Positions::getPositions();
+	auto cards = getChildByName("cards");
+	for (size_t id = 0; id < 5; ++id)
+	{
+		auto card = cards->getChildByName(StringUtils::format("o%lu", id));
+		card->stopAllActions();
+		card->setPosition(pos.opponent + pos.opponentDelta * card->getTag());
+	}
+}
+
+void Table::moveOp(size_t id, size_t newOrderNum)
+{
+    const Positions &pos = Positions::getPositions();
+	moveAllInPlacesOp();
+
+	auto cards = getChildByName("cards");
+	auto movedCard = cards->getChildByName(StringUtils::format("o%lu", id));
+
+	auto order2Place = calculateNewOrder(movedCard->getTag(), newOrderNum);
+
+	for (size_t id = 0; id < 5; ++id)
+	{
+		auto card = cards->getChildByName(StringUtils::format("o%lu", id));
+
+		// заменить порядковый номер на новый
+		size_t orderNum = order2Place[card->getTag()];
+		card->setTag(orderNum);
+
+		// сделать движение в новое положение
+	    auto move = MoveTo::create(1, pos.opponent + pos.opponentDelta * orderNum);
+	    card->runAction(move);
 	}
 }
