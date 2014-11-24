@@ -66,6 +66,9 @@ static Positions makeIph5Positions()
 	pos.colorMenu = Vec2(100, 200);
 	pos.colorMenuDelta = Vec2(10 + 125, 0);
 
+	// задник
+	pos.bgScale = 0.8;
+
 	return pos;
 }
 

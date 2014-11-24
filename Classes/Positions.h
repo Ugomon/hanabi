@@ -73,6 +73,9 @@ struct Positions
 	cocos2d::Vec2 colorMenu; // первый пункт меню выбора цветов
 	cocos2d::Vec2 colorMenuDelta; // смещения следующего пункта меню выбора цветов
 
+	// задник
+	float bgScale; // scale для задника
+
 	static const Positions &getPositions();
 };
 

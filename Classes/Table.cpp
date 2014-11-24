@@ -365,6 +365,18 @@ bool Table::init()
     // открыть файл эмулятора команд от сервера
     cmdEmulator = new std::ifstream("Resources/cmd_emulator.txt");
 
+    // добавить заник
+    {
+    	Size visibleSize = Director::getInstance()->getVisibleSize();
+    	Vec2 origin = Director::getInstance()->getVisibleOrigin();
+
+    	auto sprite = Sprite::create("bg.jpg");
+		sprite->setPosition(Vec2(origin.x + visibleSize.width / 2,
+                origin.y + visibleSize.height / 2));
+		sprite->setScale(Positions::getPositions().bgScale);
+		this->addChild(sprite, -100);
+    }
+
     return true;
 }
 
