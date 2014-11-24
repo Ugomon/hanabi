@@ -1,4 +1,6 @@
 new_game 5;
+deck 24;
+turn 1;
 
 take 0, 0;
 take 1, 1;
@@ -17,6 +19,12 @@ takeOp 3, 3;
 revealDeck w4;
 takeOp 4, 4;
 
+show 2, 00101;
+
+show 4, 01000;
+
+show g, 11001;
+
 reveal 3, r3;
 drop 3, r, 5;
 take 3, 3;
@@ -25,6 +33,10 @@ dropOp 0, y, 7;
 
 revealDeck g1;
 takeOp 0, 0;
+
+info 7;
+
+err 1;
 
 dropOp 2, 4, 6;
 dropOp 1, 5, 2;

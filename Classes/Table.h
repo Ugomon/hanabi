@@ -28,8 +28,11 @@
  * "info" - все жетоны подсказок; спрайты подсказок подвешены к этому ноду с именами 0,1,2,3,4,5,6,7
  * "cards" - все карты взятые из колоды подвешиваются к этому ноду; для очистки стола достаточно удалить всех чилдов у этого нода
  * "deck" - уже открытая карта, которая лежит на вершине колоды; приделана к "cards"
+ * "deck_label" - надпись с количеством оставшихся карт
+ * "turn_node" - анимация думания
  * "o0",..,"o4" - карты на руках у оппонента
  * "0",..,"4" - карты в моей руке
+ *     "info" - информация о моей карте
  * "r", "g",..., "f" - места для цветов в центре стола
  *
  * Терминология.
@@ -91,12 +94,8 @@ protected:
     // выполнение команд полученных от сервера (управляющие функции)
     void cmdFromServer(const std::string &cmd); // полученную команду распарсить и отправить на выполнение
     void cmdNext(); // выполнить следующую команду из файла. Используется для тестов.
-    void newGame();
     void take1(size_t orderNum, const std::string &image, size_t id); // оппонент берет карту из колоды
-    void drop(size_t id, char c, size_t serial); // я сбросил указанную карту; и положить ее надо в сброс по указонному адресу
-    void dropOp(size_t id, char c, size_t serial); // оппонент сбросил указанную карту; и положить ее надо в сброс по указонному адресу
-
-    void deck(size_t qty); // в деке осталось qty карт
+    void dropAll(); // заполнить весь сброс (функция для тестов)
     void takeDropTest(const std::string &image, char color, size_t serial);
 
     // обработка команд от сервера
@@ -105,6 +104,14 @@ protected:
     void takeOp(size_t id, size_t orderNum); // оппонент взял карту из колоды
     void reveal(size_t id, const std::string &image); // открыть свою карту
     void revealDeck(const std::string &image); // открыть верхнюю карту в колоде
+    void drop(size_t id, char c, size_t serial); // я сбросил указанную карту; и положить ее надо в сброс по указонному адресу
+    void dropOp(size_t id, char c, size_t serial); // оппонент сбросил указанную карту; и положить ее надо в сброс по указонному адресу
+    void info(size_t qty); // количество подсказок стало qty
+    void err(size_t qty); // количество ошибок стало qty
+    void deck(size_t qty); // в деке осталось qty карт
+    void turn(size_t side); // Сейчас ход: 0 - мой, 1 - оппонента.
+    void showNum(size_t num, const std::string &orderMask); // показать, где у меня расположены карты достоинством num (orderMask: '00101')
+    void clearShowInfo(); // удалить отображение информации о моих картах
 
     // отослать команду серверу
     void sendToServer(const std::string &cmd);

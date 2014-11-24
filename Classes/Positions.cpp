@@ -7,6 +7,7 @@ static Positions makeIph5Positions()
 {
 	Positions pos;
 	pos.deck = Vec2(125, 250);
+	pos.deckLabel = Vec2(187, 312);
 
 	pos.err = Vec2(25, 600);
 	pos.errDelta = Vec2(0, -50);

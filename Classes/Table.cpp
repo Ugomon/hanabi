@@ -124,10 +124,12 @@ void Table::cardReleased(MyCard &card)
 	}
 	else if (pos.tableCenter.containsPoint(card.getPosition()))
 	{
+		clearShowInfo();
 		sendToServer(StringUtils::format("go %s", card.getName().c_str()));
 	}
 	else if (pos.dropZone.containsPoint(card.getPosition()))
 	{
+		clearShowInfo();
 		sendToServer(StringUtils::format("drop %s", card.getName().c_str()));
 	}
 
@@ -236,7 +238,40 @@ bool Table::init()
     const Positions &pos = Positions::getPositions();
 
     // add Deck
-    addCardSprite("card_back.png", pos.deck, -1);
+    {
+		addCardSprite("card_back.png", pos.deck, -1);
+
+		// оставшеесе количество карт в колоде
+		auto deckLabel = Label::createWithBMFont("fonts/number.fnt", "25");
+		deckLabel->setPosition(pos.deckLabel);
+		deckLabel->setName("deck_label");
+		this->addChild(deckLabel);
+    }
+
+    // добавить анимацию думания противника
+    {
+        auto turnNode = Sprite::create("turn.jpg", Rect(0, 0, 96, 96));
+        turnNode->setAnchorPoint(Vec2::ZERO);
+        turnNode->setPosition(150, 400);
+        turnNode->setName("turn_node");
+        turnNode->setVisible(false);
+
+        Vector<SpriteFrame*> animFrames;
+        animFrames.reserve(10);
+        for (size_t i = 0; i < 10; ++i)
+        {
+            animFrames.pushBack(SpriteFrame::create("turn.jpg", Rect(96 * i, 0, 96, 96)));
+        }
+
+        // create the animation out of the frames
+        Animation* animation = Animation::createWithSpriteFrames(animFrames, 0.1f);
+        Animate* animate = Animate::create(animation);
+
+        // run it and repeat it forever
+        turnNode->runAction(RepeatForever::create(animate));
+
+        this->addChild(turnNode);
+    }
 
     // add errs
     {
@@ -260,7 +295,6 @@ bool Table::init()
 			errItem->setPosition(pos.errDelta * i);
 			errItem->setScale(pos.errScale);
 			errItem->setName(StringUtils::format("%lu", i));
-			if (i > 1) errItem->setVisible(false);
 			err->addChild(errItem, 1);
 		}
     }
@@ -287,7 +321,6 @@ bool Table::init()
 			infoItem->setPosition(pos.infoDelta * i);
 			infoItem->setScale(pos.infoScale);
 			infoItem->setName(StringUtils::format("%lu", i));
-			if (i > 5) infoItem->setVisible(false);
 			info->addChild(infoItem, 1);
 		}
     }
@@ -319,13 +352,13 @@ bool Table::init()
     {
 		auto label = Label::createWithSystemFont("Go", "Arial", 48);
 		MenuItemLabel *labelItem = MenuItemLabel::create(label,[&](Ref* sender){
-			this->newGame();
+			//this->newGame();
 		});
 		labelItem->setPosition(Vec2(50, 150));
 
 		auto label1 = Label::createWithSystemFont("Drop", "Arial", 48);
 		MenuItemLabel *labelItem1 = MenuItemLabel::create(label1,[&](Ref* sender){
-			this->deck(18);
+			this->dropAll();
 		});
 		labelItem1->setPosition(Vec2(50, 100));
 
@@ -383,6 +416,7 @@ bool Table::init()
 void Table::infoNumTouched(size_t num)
 {
 	log("info '%lu' touched", num);
+	clearShowInfo();
 	sendToServer(StringUtils::format("info %lu;", num));
 	removeChildByName("info_menu");
 }
@@ -390,6 +424,7 @@ void Table::infoNumTouched(size_t num)
 void Table::infoColorTouched(char c)
 {
 	log("info '%c' touched", c);
+	clearShowInfo();
 	sendToServer(StringUtils::format("info %c;", c));
 	removeChildByName("info_menu");
 }
@@ -490,7 +525,7 @@ void Table::takeDropTest(const std::string &image, char color, size_t serial)
 	dropOp(0, color, serial);
 }
 
-void Table::deck(size_t qty)
+void Table::dropAll()
 {
 	log("drop");
 
@@ -518,23 +553,6 @@ void Table::deck(size_t qty)
 	takeDropTest("f5", 'f', 4);
 
 	//take1(0, "y2", 0);
-}
-
-void Table::newGame()
-{
-	log("new game");
-
-	take1(0, "r1", 0);
-	take1(1, "w2", 1);
-	take1(2, "b4", 2);
-	take1(3, "r5", 3);
-	take1(4, "g2", 4);
-
-	/*take(0, 0);
-	take(1, 1);
-	take(2, 2);
-	take(3, 3);
-	take(4, 4);*/
 }
 
 void Table::take1(size_t orderNum, const std::string &image, size_t id)
@@ -565,9 +583,10 @@ void Table::cmdNext()
 void Table::cmdFromServer(const std::string &cmd)
 {
 	const char *p = cmd.c_str();
-	size_t id, serial, colorQty, orderNum;
+	size_t id, serial, colorQty, orderNum, qty, side, num;
 	char c[128];
 	char image[128];
+	char orderMask[128];
 	log("cmd from server: '%s'", p);
 
 	if (sscanf(p, "new_game %lu;", &colorQty) == 1)
@@ -597,6 +616,26 @@ void Table::cmdFromServer(const std::string &cmd)
 	else if (sscanf(p, "dropOp %lu, %[rgbywf], %lu;", &id, c, &serial) == 3)
 	{
 		dropOp(id, c[0], serial);
+	}
+	else if (sscanf(p, "info %lu;", &qty) == 1)
+	{
+		info(qty);
+	}
+	else if (sscanf(p, "err %lu;", &qty) == 1)
+	{
+		err(qty);
+	}
+	else if (sscanf(p, "deck %lu;", &qty) == 1)
+	{
+		deck(qty);
+	}
+	else if (sscanf(p, "turn %lu;", &side) == 1)
+	{
+		turn(side);
+	}
+	else if (sscanf(p, "show %lu, %[01];", &num, orderMask) == 2)
+	{
+		showNum(num, orderMask);
 	}
 	else
 	{
@@ -671,4 +710,77 @@ void Table::revealDeck(const std::string &image)
 	// добавить в контейнер карт
 	auto cards = getChildByName("cards");
 	cards->addChild(card);
+}
+
+void Table::info(size_t qty)
+{
+	auto info = getChildByName("info");
+
+	for (size_t i = 0; i < 8; ++i)
+	{
+		auto infoItem = info->getChildByName(StringUtils::format("%lu", i));
+		infoItem->setVisible(i < qty);
+	}
+}
+
+void Table::err(size_t qty)
+{
+	auto info = getChildByName("err");
+
+	for (size_t i = 0; i < 3; ++i)
+	{
+		auto infoItem = info->getChildByName(StringUtils::format("%lu", i));
+		infoItem->setVisible(i < qty);
+	}
+}
+
+void Table::deck(size_t qty)
+{
+	auto node = getChildByName("deck_label");
+	Label *deckLabel = dynamic_cast<Label *>(node);
+	deckLabel->setString(StringUtils::format("%lu", qty));
+}
+
+void Table::turn(size_t side)
+{
+	auto node = getChildByName("turn_node");
+	node->setVisible(side);
+}
+
+void Table::showNum(size_t num, const std::string &orderMask)
+{
+	clearShowInfo();
+
+	auto cards = getChildByName("cards");
+	for (size_t id = 0; id < 5; ++id)
+	{
+		auto card = cards->getChildByName(StringUtils::format("%lu", id));
+		MyCard *myCard = dynamic_cast<MyCard *>(card);
+
+		// приделать is_2.png
+	    auto spriteIs = Sprite::create(StringUtils::format("is_%lu.png", num));
+	    spriteIs->setAnchorPoint(Vec2::ZERO);
+	    spriteIs->setPosition(Vec2::ZERO);
+	    spriteIs->setName("info");
+	    myCard->addChild(spriteIs, 1);
+
+		if (orderMask.at(myCard->getOrderNum()) != '1')
+		{
+			// приделать no.png
+		    auto spriteNo = Sprite::create("no.png");
+		    spriteNo->setAnchorPoint(Vec2::ZERO);
+		    spriteNo->setPosition(Vec2::ZERO);
+		    spriteIs->addChild(spriteNo, 1);
+		}
+	}
+}
+
+void Table::clearShowInfo()
+{
+	auto cards = getChildByName("cards");
+	for (size_t id = 0; id < 5; ++id)
+	{
+		auto card = cards->getChildByName(StringUtils::format("%lu", id));
+		card->removeChildByName("info");
+	}
 }

@@ -17,6 +17,7 @@
 struct Positions
 {
 	cocos2d::Vec2 deck; // колода
+	cocos2d::Vec2 deckLabel; // центр надписи поверх колоды
 
 	cocos2d::Vec2 err; // центр верхнего жетона ошибки
 	cocos2d::Vec2 errDelta; // дельта до следующего жетона
