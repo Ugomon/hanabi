@@ -637,6 +637,10 @@ void Table::cmdFromServer(const std::string &cmd)
 	{
 		showNum(num, orderMask);
 	}
+	else if (sscanf(p, "show %[rgbywf], %[01];", c, orderMask) == 2)
+	{
+		showColor(c[0], orderMask);
+	}
 	else
 	{
 		log("unknown cmd from server: '%s'", p);
@@ -782,5 +786,33 @@ void Table::clearShowInfo()
 	{
 		auto card = cards->getChildByName(StringUtils::format("%lu", id));
 		card->removeChildByName("info");
+	}
+}
+
+void Table::showColor(char c, const std::string &orderMask)
+{
+	clearShowInfo();
+
+	auto cards = getChildByName("cards");
+	for (size_t id = 0; id < 5; ++id)
+	{
+		auto card = cards->getChildByName(StringUtils::format("%lu", id));
+		MyCard *myCard = dynamic_cast<MyCard *>(card);
+
+		Sprite *sprite = NULL;
+		if (orderMask.at(myCard->getOrderNum()) == '1')
+		{
+			// приделать is_r.png
+		    sprite = Sprite::create(StringUtils::format("is_%c.png", c));
+		}
+		else
+		{
+			// приделать no_r.png
+		    sprite = Sprite::create(StringUtils::format("no_%c.png", c));
+		}
+	    sprite->setAnchorPoint(Vec2::ZERO);
+	    sprite->setPosition(Vec2::ZERO);
+	    sprite->setName("info");
+	    myCard->addChild(sprite, 1);
 	}
 }

@@ -111,6 +111,7 @@ protected:
     void deck(size_t qty); // в деке осталось qty карт
     void turn(size_t side); // Сейчас ход: 0 - мой, 1 - оппонента.
     void showNum(size_t num, const std::string &orderMask); // показать, где у меня расположены карты достоинством num (orderMask: '00101')
+    void showColor(char c, const std::string &orderMask); // показать, где у меня расположены карты цвета c (orderMask: '00101')
     void clearShowInfo(); // удалить отображение информации о моих картах
 
     // отослать команду серверу
