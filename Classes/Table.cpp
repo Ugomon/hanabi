@@ -245,7 +245,18 @@ bool Table::init()
 		auto deckLabel = Label::createWithBMFont("fonts/number.fnt", "25");
 		deckLabel->setPosition(pos.deckLabel);
 		deckLabel->setName("deck_label");
+		deckLabel->setScale(1.7);
 		this->addChild(deckLabel);
+    }
+
+    // add end game score
+    {
+		auto score = Label::createWithBMFont("fonts/number.fnt", "Score : 0");
+		score->setPosition(visibleSize.width / 2, visibleSize.height / 2);
+		score->setName("score");
+		score->setScale(5);
+		score->setVisible(false);
+		this->addChild(score, 200);
     }
 
     // добавить анимацию думания противника
@@ -398,7 +409,7 @@ bool Table::init()
     // открыть файл эмулятора команд от сервера
     cmdEmulator = new std::ifstream("Resources/cmd_emulator.txt");
 
-    // добавить заник
+    // добавить задник
     {
     	Size visibleSize = Director::getInstance()->getVisibleSize();
     	Vec2 origin = Director::getInstance()->getVisibleOrigin();
@@ -481,6 +492,7 @@ void Table::opponentTouched(size_t orderNum)
 
 void Table::drop(size_t id, char c, size_t serial)
 {
+	clearShowInfo();
 	const Positions &pos = Positions::getPositions();
 
 	auto cards = getChildByName("cards");
@@ -589,7 +601,7 @@ void Table::cmdFromServer(const std::string &cmd)
 	char orderMask[128];
 	log("cmd from server: '%s'", p);
 
-	if (sscanf(p, "new_game %lu;", &colorQty) == 1)
+	if (sscanf(p, "newGame %lu;", &colorQty) == 1)
 	{
 		newGame(colorQty);
 	}
@@ -645,6 +657,18 @@ void Table::cmdFromServer(const std::string &cmd)
 	{
 		moveOp(id, orderNum);
 	}
+	else if (sscanf(p, "lay %lu, %[rgbywf];", &id, c) == 2)
+	{
+		lay(id, c[0]);
+	}
+	else if (sscanf(p, "layOp %lu, %[rgbywf];", &id, c) == 2)
+	{
+		layOp(id, c[0]);
+	}
+	else if (sscanf(p, "gameOver %lu;", &qty) == 1)
+	{
+		gameOver(qty);
+	}
 	else
 	{
 		log("unknown cmd from server: '%s'", p);
@@ -655,17 +679,27 @@ const std::vector<char> Table::allColors = {'r', 'g', 'b', 'y', 'w', 'f'};
 
 void Table::newGame(size_t colorQty)
 {
+	// удалить все карты
+	auto cards = getChildByName("cards");
+	cards->removeAllChildren();
+
+	// оставить только нужные места для салютов
 	for (size_t i = 0; i < allColors.size(); ++i)
 	{
 		char c = allColors[i];
 		auto colorPlace = getChildByName(std::string(1, c));
 		colorPlace->setVisible(i < colorQty);
 	}
+
+	// спрятать счёт
+	auto score = getChildByName("score");
+	score->setVisible(false);
 }
 
 void Table::take(size_t id, size_t orderNum)
 {
 	const Positions &pos = Positions::getPositions();
+	clearShowInfo();
 
     auto card = new MyCard("card_back.png", orderNum, *this);
     card->setAnchorPoint(Vec2::ZERO);
@@ -695,8 +729,8 @@ void Table::takeOp(size_t id, size_t orderNum)
 
 void Table::reveal(size_t id, const std::string &image)
 {
-	// расставим все по своим местам на случай, если передвигали в это время
 	moveAllInPlaces(100); //всех расставить
+	clearShowInfo();
 
 	auto cards = getChildByName("cards");
 	auto card = cards->getChildByName(StringUtils::format("%lu", id));
@@ -790,7 +824,10 @@ void Table::clearShowInfo()
 	for (size_t id = 0; id < 5; ++id)
 	{
 		auto card = cards->getChildByName(StringUtils::format("%lu", id));
-		card->removeChildByName("info");
+		if (card)
+		{
+			card->removeChildByName("info");
+		}
 	}
 }
 
@@ -856,4 +893,56 @@ void Table::moveOp(size_t id, size_t newOrderNum)
 	    auto move = MoveTo::create(1, pos.opponent + pos.opponentDelta * orderNum);
 	    card->runAction(move);
 	}
+}
+
+void Table::lay(size_t id, char c)
+{
+	moveAllInPlaces(100); //всех расставить
+	clearShowInfo();
+
+	auto cards = getChildByName("cards");
+	auto card = cards->getChildByName(StringUtils::format("%lu", id));
+
+	layCard(card, c);
+}
+
+void Table::layOp(size_t id, char c)
+{
+	moveAllInPlacesOp(); //всех расставить
+
+	auto cards = getChildByName("cards");
+	auto card = cards->getChildByName(StringUtils::format("o%lu", id));
+
+	layCard(card, c);
+}
+
+void Table::layCard(cocos2d::Node *card, char c)
+{
+    const Positions &pos = Positions::getPositions();
+
+	// найти предудущую верхнюю карту салюта этого цвета
+	auto cards = getChildByName("cards");
+	std::string topName = StringUtils::format("top_%c", c);
+	auto top = cards->getChildByName(topName);
+	if (top)
+	{
+		top->setName("");
+	    auto hide = Hide::create();
+	    auto delay = DelayTime::create(1);
+	    auto seq = Sequence::create(delay, hide, NULL);
+	    top->runAction(seq);
+	}
+
+	card->stopAllActions();
+	card->setName(topName);
+    auto move = MoveTo::create(1, pos.getSalut(c));
+    card->runAction(move);
+}
+
+void Table::gameOver(size_t score)
+{
+	auto node = getChildByName("score");
+	Label *scoreLabel = dynamic_cast<Label *>(node);
+	scoreLabel->setString(StringUtils::format("Score : %lu", score));
+	scoreLabel->setVisible(true);
 }
