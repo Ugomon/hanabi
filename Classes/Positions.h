@@ -77,6 +77,9 @@ struct Positions
 	// задник
 	float bgScale; // scale для задника
 
+	//
+	float duration; // 1 (еденица) задержки для всех анимаций
+
 	static const Positions &getPositions();
 };
 

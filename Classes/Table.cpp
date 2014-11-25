@@ -100,7 +100,7 @@ void Table::cardReleased(MyCard &card)
 	log("card %lu released", card.getOrderNum());
 
 	// выбранную карту начать перемещать на место
-    auto move = MoveBy::create(1, pos.me + pos.meDelta * card.getOrderNum() - card.getPosition());
+    auto move = MoveBy::create(pos.duration, pos.me + pos.meDelta * card.getOrderNum() - card.getPosition());
     card.runAction(move);
 
 	if (pos.changeZone.containsPoint(card.getPosition())) // отпустили в пределах своей руки
@@ -146,7 +146,7 @@ void Table::moveAllInPlaces(size_t exceptOrderNum, bool immediately)
 			}
 			else
 			{
-				auto move = MoveTo::create(1, target);
+				auto move = MoveTo::create(pos.duration, target);
 				myCard->runAction(move);
 			}
 		}
@@ -500,10 +500,10 @@ void Table::drop(size_t id, char c, size_t serial)
 	Vec2 res = dropPos + dropDelta * serial;
 
 	card->stopAllActions();
-    auto move = MoveTo::create(1, res);
+    auto move = MoveTo::create(pos.duration, res);
     card->runAction(move);
 
-    auto scale = ScaleTo::create(1, pos.dropScale);
+    auto scale = ScaleTo::create(pos.duration, pos.dropScale);
     card->runAction(scale);
 }
 
@@ -520,10 +520,10 @@ void Table::dropOp(size_t id, char c, size_t serial)
 	Vec2 res = dropPos + dropDelta * serial;
 
 	card->stopAllActions();
-    auto move = MoveTo::create(1, res);
+    auto move = MoveTo::create(pos.duration, res);
     card->runAction(move);
 
-    auto scale = ScaleTo::create(1, pos.dropScale);
+    auto scale = ScaleTo::create(pos.duration, pos.dropScale);
     card->runAction(scale);
 }
 
@@ -574,7 +574,7 @@ void Table::take1(size_t orderNum, const std::string &image, size_t id)
 	auto cards = getChildByName("cards");
 	cards->addChild(card);
 
-    auto move = MoveBy::create(1, pos.opponent + pos.opponentDelta * orderNum - pos.deck);
+    auto move = MoveBy::create(pos.duration, pos.opponent + pos.opponentDelta * orderNum - pos.deck);
     card->runAction(move);
 }
 
@@ -710,7 +710,7 @@ void Table::take(size_t id, size_t orderNum)
 	auto cards = getChildByName("cards");
 	cards->addChild(card);
 
-    auto move = MoveBy::create(1, pos.me + pos.meDelta * orderNum - pos.deck);
+    auto move = MoveBy::create(pos.duration, pos.me + pos.meDelta * orderNum - pos.deck);
     card->runAction(move);
 }
 
@@ -723,7 +723,7 @@ void Table::takeOp(size_t id, size_t orderNum)
 	deckCard->setName(StringUtils::format("o%lu", id));
 	deckCard->setTag((int)orderNum);
 
-    auto move = MoveBy::create(1, pos.opponent + pos.opponentDelta * orderNum - pos.deck);
+    auto move = MoveBy::create(pos.duration, pos.opponent + pos.opponentDelta * orderNum - pos.deck);
     deckCard->runAction(move);
 }
 
@@ -888,7 +888,7 @@ void Table::moveOp(size_t id, size_t newOrderNum)
 		card->setTag(orderNum);
 
 		// сделать движение в новое положение
-	    auto move = MoveTo::create(1, pos.opponent + pos.opponentDelta * orderNum);
+	    auto move = MoveTo::create(pos.duration, pos.opponent + pos.opponentDelta * orderNum);
 	    card->stopAllActions();
 	    card->runAction(move);
 	}
@@ -914,7 +914,7 @@ void Table::move(size_t id, size_t newOrderNum)
 		myCard->setOrderNum(orderNum);
 
 		// сделать движение в новое положение
-	    auto move = MoveTo::create(1, pos.me + pos.meDelta * orderNum);
+	    auto move = MoveTo::create(pos.duration, pos.me + pos.meDelta * orderNum);
 	    card->stopAllActions();
 	    card->runAction(move);
 	}
@@ -950,14 +950,14 @@ void Table::layCard(cocos2d::Node *card, char c)
 	{
 		top->setName("");
 	    auto hide = Hide::create();
-	    auto delay = DelayTime::create(1);
+	    auto delay = DelayTime::create(pos.duration);
 	    auto seq = Sequence::create(delay, hide, NULL);
 	    top->runAction(seq);
 	}
 
 	card->stopAllActions();
 	card->setName(topName);
-    auto move = MoveTo::create(1, pos.getSalut(c));
+    auto move = MoveTo::create(pos.duration, pos.getSalut(c));
     card->runAction(move);
 }
 

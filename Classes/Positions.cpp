@@ -70,6 +70,9 @@ static Positions makeIph5Positions()
 	// задник
 	pos.bgScale = 0.8;
 
+	//
+	pos.duration = 5;
+
 	return pos;
 }
 
