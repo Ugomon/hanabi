@@ -2,8 +2,6 @@ newGame 5;
 deck 24;
 turn 1;
 
-gameOver 24;
-
 take 0, 0;
 take 1, 1;
 take 2, 2;
@@ -19,6 +17,14 @@ revealDeck b3;
 takeOp 3, 3;
 revealDeck w4;
 takeOp 4, 4;
+
+move 2, 0;
+
+move 1, 4;
+
+move 1, 3;
+
+move 3, 3;
 
 reveal 0, w4;
 lay 0, w;
@@ -39,6 +45,8 @@ takeOp 1, 1;
 layOp 1, r;
 revealDeck r4;
 takeOp 1, 1;
+
+gameOver 24;
 
 newGame 6;
 deck 45;

@@ -657,6 +657,10 @@ void Table::cmdFromServer(const std::string &cmd)
 	{
 		moveOp(id, orderNum);
 	}
+	else if (sscanf(p, "move %lu, %lu;", &id, &orderNum) == 2)
+	{
+		move(id, orderNum);
+	}
 	else if (sscanf(p, "lay %lu, %[rgbywf];", &id, c) == 2)
 	{
 		lay(id, c[0]);
@@ -891,6 +895,32 @@ void Table::moveOp(size_t id, size_t newOrderNum)
 
 		// сделать движение в новое положение
 	    auto move = MoveTo::create(1, pos.opponent + pos.opponentDelta * orderNum);
+	    card->runAction(move);
+	}
+}
+
+void Table::move(size_t id, size_t newOrderNum)
+{
+    const Positions &pos = Positions::getPositions();
+	moveAllInPlaces(100);
+
+	auto cards = getChildByName("cards");
+	auto movedCard = cards->getChildByName(StringUtils::format("%lu", id));
+	MyCard *myMovedCard = dynamic_cast<MyCard *>(movedCard);
+
+	auto order2Place = calculateNewOrder(myMovedCard->getOrderNum(), newOrderNum);
+
+	for (size_t id = 0; id < 5; ++id)
+	{
+		auto card = cards->getChildByName(StringUtils::format("%lu", id));
+		MyCard *myCard = dynamic_cast<MyCard *>(card);
+
+		// заменить порядковый номер на новый
+		size_t orderNum = order2Place[myCard->getOrderNum()];
+		myCard->setOrderNum(orderNum);
+
+		// сделать движение в новое положение
+	    auto move = MoveTo::create(1, pos.me + pos.meDelta * orderNum);
 	    card->runAction(move);
 	}
 }

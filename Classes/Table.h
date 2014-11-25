@@ -117,6 +117,7 @@ protected:
     void showNum(size_t num, const std::string &orderMask); // показать, где у меня расположены карты достоинством num (orderMask: '00101')
     void showColor(char c, const std::string &orderMask); // показать, где у меня расположены карты цвета c (orderMask: '00101')
     void moveOp(size_t id, size_t newOrderNum); // оппонент передвинул карту id на позицию newOrderNum
+    void move(size_t id, size_t newOrderNum); // я передвинул карту id на позицию newOrderNum
     void lay(size_t id, char c); // я выложил указанную указанную карту в салют <c>
     void layOp(size_t id, char c); // оппонент выложил указанную указанную карту в салют <c>
     void gameOver(size_t score); // игра закончена, счет: score
