@@ -61,47 +61,37 @@ size_t Table::calculateOrderNum(cocos2d::Vec2 cardPos)
 std::vector<size_t> Table::calculateNewOrder(size_t oldOrderNum, size_t newOrderNum)
 {
 	std::vector<size_t> order2Place = {0, 1, 2, 3, 4}; // место карты в зависимости от orderNum
-	int delta;
-	size_t minO, maxO; // границы изменения порядковых номеров
-	if (newOrderNum > oldOrderNum)
+	if (newOrderNum != oldOrderNum)
 	{
-		delta = -1; // у всех порядковый номер будет вычитаться
-		minO = oldOrderNum + 1;
-		maxO = newOrderNum;
-	}
-	else
-	{
-		delta = 1; // у всех порядковый номер будет прибавляться
-		minO = newOrderNum;
-		maxO = oldOrderNum - 1;
-	}
-
-	// изменить порядковые номера
-	for (size_t order = 0; order < 5; ++order)
-	{
-		if (order == oldOrderNum)
+		int delta;
+		size_t minO, maxO; // границы изменения порядковых номеров
+		if (newOrderNum > oldOrderNum)
 		{
-			order2Place[order] = newOrderNum;
+			delta = -1; // у всех порядковый номер будет вычитаться
+			minO = oldOrderNum + 1;
+			maxO = newOrderNum;
 		}
-		else if (minO <= order && order <= maxO)
+		else
 		{
-			order2Place[order] = order + delta;
+			delta = 1; // у всех порядковый номер будет прибавляться
+			minO = newOrderNum;
+			maxO = oldOrderNum - 1;
+		}
+
+		// изменить порядковые номера
+		for (size_t order = 0; order < 5; ++order)
+		{
+			if (order == oldOrderNum)
+			{
+				order2Place[order] = newOrderNum;
+			}
+			else if (minO <= order && order <= maxO)
+			{
+				order2Place[order] = order + delta;
+			}
 		}
 	}
 	return order2Place;
-}
-
-void Table::changeCardOrder(const std::vector<size_t> &order2Place)
-{
-	// пройтись по всей руке и изменить порядковые номера
-	auto cards = getChildByName("cards");
-	for (size_t id = 0; id < 5; ++id)
-	{
-		auto card = cards->getChildByName(StringUtils::format("%lu", id));
-		MyCard *myCard = dynamic_cast<MyCard *>(card);
-		size_t order = myCard->getOrderNum();
-		myCard->setOrderNum(order2Place[order]);
-	}
 }
 
 void Table::cardReleased(MyCard &card)
@@ -109,8 +99,11 @@ void Table::cardReleased(MyCard &card)
     const Positions &pos = Positions::getPositions();
 	log("card %lu released", card.getOrderNum());
 
-	// проверим нахождение в пределах середины стола, сброса и своей руки
-	if (pos.changeZone.containsPoint(card.getPosition()))
+	// выбранную карту начать перемещать на место
+    auto move = MoveBy::create(1, pos.me + pos.meDelta * card.getOrderNum() - card.getPosition());
+    card.runAction(move);
+
+	if (pos.changeZone.containsPoint(card.getPosition())) // отпустили в пределах своей руки
 	{
 		size_t newOrderNum = calculateOrderNum(card.getPosition());
 		if (newOrderNum != card.getOrderNum())
@@ -118,30 +111,23 @@ void Table::cardReleased(MyCard &card)
 			sendToServer(StringUtils::format("move %s, %lu; //<-%lu"
 					, card.getName().c_str(), newOrderNum, card.getOrderNum()));
 
-			auto order2Place = calculateNewOrder(card.getOrderNum(), newOrderNum);
-			changeCardOrder(order2Place);
+			// все карты, кроме данной вернуть на места (медленно!)
+			moveAllInPlaces(card.getOrderNum(), false);
 		}
 	}
-	else if (pos.tableCenter.containsPoint(card.getPosition()))
+	else if (pos.tableCenter.containsPoint(card.getPosition())) // отпустили в пределах центра (ход)
 	{
 		clearShowInfo();
 		sendToServer(StringUtils::format("go %s", card.getName().c_str()));
 	}
-	else if (pos.dropZone.containsPoint(card.getPosition()))
+	else if (pos.dropZone.containsPoint(card.getPosition())) // отпустили в пределах сброса
 	{
 		clearShowInfo();
 		sendToServer(StringUtils::format("drop %s", card.getName().c_str()));
 	}
-
-	// выбранную карту начать перемещать на место
-    auto move = MoveBy::create(1, pos.me + pos.meDelta * card.getOrderNum() - card.getPosition());
-    card.runAction(move);
-
-	// все карты, кроме данной вернуть на места
-	moveAllInPlaces(card.getOrderNum());
 }
 
-void Table::moveAllInPlaces(size_t exceptOrderNum)
+void Table::moveAllInPlaces(size_t exceptOrderNum, bool immediately)
 {
     const Positions &pos = Positions::getPositions();
 	auto cards = getChildByName("cards");
@@ -152,7 +138,17 @@ void Table::moveAllInPlaces(size_t exceptOrderNum)
 		if (myCard->getOrderNum() != exceptOrderNum)
 		{
 			myCard->stopAllActions();
-			myCard->setPosition(pos.me + pos.meDelta * myCard->getOrderNum());
+			Vec2 target = pos.me + pos.meDelta * myCard->getOrderNum();
+
+			if (immediately)
+			{
+				myCard->setPosition(target);
+			}
+			else
+			{
+				auto move = MoveTo::create(1, target);
+				myCard->runAction(move);
+			}
 		}
 	}
 }
@@ -733,7 +729,6 @@ void Table::takeOp(size_t id, size_t orderNum)
 
 void Table::reveal(size_t id, const std::string &image)
 {
-	moveAllInPlaces(100); //всех расставить
 	clearShowInfo();
 
 	auto cards = getChildByName("cards");
@@ -878,7 +873,6 @@ void Table::moveAllInPlacesOp()
 void Table::moveOp(size_t id, size_t newOrderNum)
 {
     const Positions &pos = Positions::getPositions();
-	moveAllInPlacesOp();
 
 	auto cards = getChildByName("cards");
 	auto movedCard = cards->getChildByName(StringUtils::format("o%lu", id));
@@ -895,6 +889,7 @@ void Table::moveOp(size_t id, size_t newOrderNum)
 
 		// сделать движение в новое положение
 	    auto move = MoveTo::create(1, pos.opponent + pos.opponentDelta * orderNum);
+	    card->stopAllActions();
 	    card->runAction(move);
 	}
 }
@@ -902,7 +897,6 @@ void Table::moveOp(size_t id, size_t newOrderNum)
 void Table::move(size_t id, size_t newOrderNum)
 {
     const Positions &pos = Positions::getPositions();
-	moveAllInPlaces(100);
 
 	auto cards = getChildByName("cards");
 	auto movedCard = cards->getChildByName(StringUtils::format("%lu", id));
@@ -921,13 +915,13 @@ void Table::move(size_t id, size_t newOrderNum)
 
 		// сделать движение в новое положение
 	    auto move = MoveTo::create(1, pos.me + pos.meDelta * orderNum);
+	    card->stopAllActions();
 	    card->runAction(move);
 	}
 }
 
 void Table::lay(size_t id, char c)
 {
-	moveAllInPlaces(100); //всех расставить
 	clearShowInfo();
 
 	auto cards = getChildByName("cards");
@@ -938,8 +932,6 @@ void Table::lay(size_t id, char c)
 
 void Table::layOp(size_t id, char c)
 {
-	moveAllInPlacesOp(); //всех расставить
-
 	auto cards = getChildByName("cards");
 	auto card = cards->getChildByName(StringUtils::format("o%lu", id));
 

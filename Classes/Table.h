@@ -126,10 +126,9 @@ protected:
     void sendToServer(const std::string &cmd);
 
     // управление своими картами при перетаскивании
-    void moveAllInPlaces(size_t exceptOrderNum); // расставить свои карты по своим местам
+    void moveAllInPlaces(size_t exceptOrderNum, bool immediately = true); // расставить свои карты по своим местам
     static size_t calculateOrderNum(cocos2d::Vec2 cardPos); // вычисляет порядковый номер карты в руке по её положению
     static std::vector<size_t> calculateNewOrder(size_t oldOrderNum, size_t newOrderNum); // возвращает массив с указанием новый мест для карты, для случая, когда карта oldOrderNum переместилась в позицию newOrderNum
-    void changeCardOrder(const std::vector<size_t> &order2Place); // меняет orderNum всем картам своей руки так, как написано в передаваемом аргументе
 
     // сообщение информации
     void opponentTouched(size_t orderNum); // кликнута карта оппонента с порядковым номером orderNum
