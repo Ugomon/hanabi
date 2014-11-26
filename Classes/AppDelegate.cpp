@@ -16,7 +16,11 @@ bool AppDelegate::applicationDidFinishLaunching() {
     auto director = Director::getInstance();
     auto glview = director->getOpenGLView();
     if(!glview) {
-        glview = GLView::create("Hanabi");
+		#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS) || (CC_TARGET_PLATFORM == CC_PLATFORM_MAC)
+    		glview = GLViewImpl::create("Hanabi");
+		#else
+	        glview = GLView::create("Hanabi");
+		#endif
         director->setOpenGLView(glview);
     }
 

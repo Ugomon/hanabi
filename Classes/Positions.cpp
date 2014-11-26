@@ -71,7 +71,7 @@ static Positions makeIph5Positions()
 	pos.bgScale = 0.8;
 
 	//
-	pos.duration = 5;
+	pos.duration = 1;
 
 	return pos;
 }

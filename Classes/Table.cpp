@@ -238,7 +238,7 @@ bool Table::init()
 		addCardSprite("card_back.png", pos.deck, -1);
 
 		// оставшеесе количество карт в колоде
-		auto deckLabel = Label::createWithBMFont("fonts/number.fnt", "25");
+		auto deckLabel = Label::createWithBMFont("number.fnt", "25");
 		deckLabel->setPosition(pos.deckLabel);
 		deckLabel->setName("deck_label");
 		deckLabel->setScale(1.7);
@@ -247,7 +247,7 @@ bool Table::init()
 
     // add end game score
     {
-		auto score = Label::createWithBMFont("fonts/number.fnt", "Score : 0");
+		auto score = Label::createWithBMFont("number.fnt", "Score : 0");
 		score->setPosition(visibleSize.width / 2, visibleSize.height / 2);
 		score->setName("score");
 		score->setScale(5);
@@ -403,7 +403,11 @@ bool Table::init()
     }
 
     // открыть файл эмулятора команд от сервера
-    cmdEmulator = new std::ifstream("Resources/cmd_emulator.txt");
+	#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS) || (CC_TARGET_PLATFORM == CC_PLATFORM_MAC)
+    	cmdEmulator = new std::ifstream("cmd_emulator.txt");
+	#else
+    	cmdEmulator = new std::ifstream("Resources/cmd_emulator.txt");
+	#endif
 
     // добавить задник
     {
