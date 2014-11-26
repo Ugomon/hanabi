@@ -31,7 +31,7 @@ Game rules
 
 Можно добавить в колоду радужный цвет (номиналы: 1,2,3,4,5). Теперь нужно собрать пасьянс из 6 цветов.
 
-How to build
+How to build under Linux
 ====
 
 Install cocos2d-x 3.0 or later.
@@ -41,4 +41,17 @@ Create new project: 'cocos new MyGame -p com.your_company.mygame -l cpp -d NEW_P
 Link Classes to Classes dir in project.
 
 Link Resources to Resources dir in project.
+
+Link CMackLists.txt to CMackLists.txt in project.
+
+How to build under Mac (differences)
+====
+
+Do the same as for Linux.
+
+open proj.ios_mac/hanabi.xcodeproj in Xcode
+
+Add all files from Classes into Classes folder in Xcode project (for Mac && for IOs)
+
+Add all files from Resources into Resources folder in Xcode project (for Mac && for IOs)
 
