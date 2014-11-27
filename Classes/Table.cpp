@@ -23,9 +23,9 @@ void Table::cardPositionChanged(MyCard &draggingCard, cocos2d::Vec2 oldPos)
 
 	if (isInsideHand)
 	{
-		// todo: переставлять карты не чаще, чем раз в 0.1 секунды
+		// todo: РїРµСЂРµСЃС‚Р°РІР»СЏС‚СЊ РєР°СЂС‚С‹ РЅРµ С‡Р°С‰Рµ, С‡РµРј СЂР°Р· РІ 0.1 СЃРµРєСѓРЅРґС‹
 
-		// расставить карты в руке освободив место перетаскиваемой карте
+		// СЂР°СЃСЃС‚Р°РІРёС‚СЊ РєР°СЂС‚С‹ РІ СЂСѓРєРµ РѕСЃРІРѕР±РѕРґРёРІ РјРµСЃС‚Рѕ РїРµСЂРµС‚Р°СЃРєРёРІР°РµРјРѕР№ РєР°СЂС‚Рµ
 		size_t newOrderNum = calculateOrderNum(draggingCard.getPosition());
 		auto order2Place = calculateNewOrder(draggingCard.getOrderNum(), newOrderNum);
 
@@ -34,7 +34,7 @@ void Table::cardPositionChanged(MyCard &draggingCard, cocos2d::Vec2 oldPos)
 		{
 			auto card = cards->getChildByName(StringUtils::format("%lu", id));
 			MyCard *myCard = dynamic_cast<MyCard *>(card);
-			if (myCard->getOrderNum() != draggingCard.getOrderNum()) // перетаскиваемую не трогаем. Расставляем остальные.
+			if (myCard->getOrderNum() != draggingCard.getOrderNum()) // РїРµСЂРµС‚Р°СЃРєРёРІР°РµРјСѓСЋ РЅРµ С‚СЂРѕРіР°РµРј. Р Р°СЃСЃС‚Р°РІР»СЏРµРј РѕСЃС‚Р°Р»СЊРЅС‹Рµ.
 			{
 				myCard->stopAllActions();
 				myCard->setPosition(pos.me + pos.meDelta * order2Place[myCard->getOrderNum()]);
@@ -43,7 +43,7 @@ void Table::cardPositionChanged(MyCard &draggingCard, cocos2d::Vec2 oldPos)
 	}
 	else if (wasInsideHand) // outside now
 	{
-		// все карты, кроме данной вернуть на места
+		// РІСЃРµ РєР°СЂС‚С‹, РєСЂРѕРјРµ РґР°РЅРЅРѕР№ РІРµСЂРЅСѓС‚СЊ РЅР° РјРµСЃС‚Р°
 		moveAllInPlaces(draggingCard.getOrderNum());
 	}
 }
@@ -60,25 +60,25 @@ size_t Table::calculateOrderNum(cocos2d::Vec2 cardPos)
 
 std::vector<size_t> Table::calculateNewOrder(size_t oldOrderNum, size_t newOrderNum)
 {
-	std::vector<size_t> order2Place = {0, 1, 2, 3, 4}; // место карты в зависимости от orderNum
+	std::vector<size_t> order2Place = {0, 1, 2, 3, 4}; // РјРµСЃС‚Рѕ РєР°СЂС‚С‹ РІ Р·Р°РІРёСЃРёРјРѕСЃС‚Рё РѕС‚ orderNum
 	if (newOrderNum != oldOrderNum)
 	{
 		int delta;
-		size_t minO, maxO; // границы изменения порядковых номеров
+		size_t minO, maxO; // РіСЂР°РЅРёС†С‹ РёР·РјРµРЅРµРЅРёСЏ РїРѕСЂСЏРґРєРѕРІС‹С… РЅРѕРјРµСЂРѕРІ
 		if (newOrderNum > oldOrderNum)
 		{
-			delta = -1; // у всех порядковый номер будет вычитаться
+			delta = -1; // Сѓ РІСЃРµС… РїРѕСЂСЏРґРєРѕРІС‹Р№ РЅРѕРјРµСЂ Р±СѓРґРµС‚ РІС‹С‡РёС‚Р°С‚СЊСЃСЏ
 			minO = oldOrderNum + 1;
 			maxO = newOrderNum;
 		}
 		else
 		{
-			delta = 1; // у всех порядковый номер будет прибавляться
+			delta = 1; // Сѓ РІСЃРµС… РїРѕСЂСЏРґРєРѕРІС‹Р№ РЅРѕРјРµСЂ Р±СѓРґРµС‚ РїСЂРёР±Р°РІР»СЏС‚СЊСЃСЏ
 			minO = newOrderNum;
 			maxO = oldOrderNum - 1;
 		}
 
-		// изменить порядковые номера
+		// РёР·РјРµРЅРёС‚СЊ РїРѕСЂСЏРґРєРѕРІС‹Рµ РЅРѕРјРµСЂР°
 		for (size_t order = 0; order < 5; ++order)
 		{
 			if (order == oldOrderNum)
@@ -99,11 +99,11 @@ void Table::cardReleased(MyCard &card)
     const Positions &pos = Positions::getPositions();
 	log("card %lu released", card.getOrderNum());
 
-	// выбранную карту начать перемещать на место
+	// РІС‹Р±СЂР°РЅРЅСѓСЋ РєР°СЂС‚Сѓ РЅР°С‡Р°С‚СЊ РїРµСЂРµРјРµС‰Р°С‚СЊ РЅР° РјРµСЃС‚Рѕ
     auto move = MoveBy::create(pos.duration, pos.me + pos.meDelta * card.getOrderNum() - card.getPosition());
     card.runAction(move);
 
-	if (pos.changeZone.containsPoint(card.getPosition())) // отпустили в пределах своей руки
+	if (pos.changeZone.containsPoint(card.getPosition())) // РѕС‚РїСѓСЃС‚РёР»Рё РІ РїСЂРµРґРµР»Р°С… СЃРІРѕРµР№ СЂСѓРєРё
 	{
 		size_t newOrderNum = calculateOrderNum(card.getPosition());
 		if (newOrderNum != card.getOrderNum())
@@ -111,16 +111,16 @@ void Table::cardReleased(MyCard &card)
 			sendToServer(StringUtils::format("move %s, %lu; //<-%lu"
 					, card.getName().c_str(), newOrderNum, card.getOrderNum()));
 
-			// все карты, кроме данной вернуть на места (медленно!)
+			// РІСЃРµ РєР°СЂС‚С‹, РєСЂРѕРјРµ РґР°РЅРЅРѕР№ РІРµСЂРЅСѓС‚СЊ РЅР° РјРµСЃС‚Р° (РјРµРґР»РµРЅРЅРѕ!)
 			moveAllInPlaces(card.getOrderNum(), false);
 		}
 	}
-	else if (pos.tableCenter.containsPoint(card.getPosition())) // отпустили в пределах центра (ход)
+	else if (pos.tableCenter.containsPoint(card.getPosition())) // РѕС‚РїСѓСЃС‚РёР»Рё РІ РїСЂРµРґРµР»Р°С… С†РµРЅС‚СЂР° (С…РѕРґ)
 	{
 		clearShowInfo();
 		sendToServer(StringUtils::format("go %s", card.getName().c_str()));
 	}
-	else if (pos.dropZone.containsPoint(card.getPosition())) // отпустили в пределах сброса
+	else if (pos.dropZone.containsPoint(card.getPosition())) // РѕС‚РїСѓСЃС‚РёР»Рё РІ РїСЂРµРґРµР»Р°С… СЃР±СЂРѕСЃР°
 	{
 		clearShowInfo();
 		sendToServer(StringUtils::format("drop %s", card.getName().c_str()));
@@ -237,7 +237,7 @@ bool Table::init()
     {
 		addCardSprite("card_back.png", pos.deck, -1);
 
-		// оставшеесе количество карт в колоде
+		// РѕСЃС‚Р°РІС€РµРµСЃРµ РєРѕР»РёС‡РµСЃС‚РІРѕ РєР°СЂС‚ РІ РєРѕР»РѕРґРµ
 		auto deckLabel = Label::createWithBMFont("number.fnt", "25");
 		deckLabel->setPosition(pos.deckLabel);
 		deckLabel->setName("deck_label");
@@ -255,7 +255,7 @@ bool Table::init()
 		this->addChild(score, 200);
     }
 
-    // добавить анимацию думания противника
+    // РґРѕР±Р°РІРёС‚СЊ Р°РЅРёРјР°С†РёСЋ РґСѓРјР°РЅРёСЏ РїСЂРѕС‚РёРІРЅРёРєР°
     {
         auto turnNode = Sprite::create("turn.jpg", Rect(0, 0, 96, 96));
         turnNode->setAnchorPoint(Vec2::ZERO);
@@ -337,11 +337,11 @@ bool Table::init()
 	{
 		char c = allColors[i];
 
-		// нарисовать место для карты
+		// РЅР°СЂРёСЃРѕРІР°С‚СЊ РјРµСЃС‚Рѕ РґР»СЏ РєР°СЂС‚С‹
 		auto colorPlace = addCardSprite("card_face.png", pos.getSalut(c), -2);
-		colorPlace->setName(std::string(1, c)); // именем будет буква цвета
+		colorPlace->setName(std::string(1, c)); // РёРјРµРЅРµРј Р±СѓРґРµС‚ Р±СѓРєРІР° С†РІРµС‚Р°
 
-		// сверху приделать цветную рамку
+		// СЃРІРµСЂС…Сѓ РїСЂРёРґРµР»Р°С‚СЊ С†РІРµС‚РЅСѓСЋ СЂР°РјРєСѓ
 	    auto sprite = Sprite::create(StringUtils::format("is_%c.png", c));
 	    sprite->setAnchorPoint(Vec2::ZERO);
 	    sprite->setPosition(Vec2::ZERO);
@@ -402,14 +402,14 @@ bool Table::init()
 		addChild(menu, 20);
     }
 
-    // открыть файл эмулятора команд от сервера
+    // РѕС‚РєСЂС‹С‚СЊ С„Р°Р№Р» СЌРјСѓР»СЏС‚РѕСЂР° РєРѕРјР°РЅРґ РѕС‚ СЃРµСЂРІРµСЂР°
 	#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS) || (CC_TARGET_PLATFORM == CC_PLATFORM_MAC)
     	cmdEmulator = new std::ifstream("cmd_emulator.txt");
 	#else
     	cmdEmulator = new std::ifstream("Resources/cmd_emulator.txt");
 	#endif
 
-    // добавить задник
+    // РґРѕР±Р°РІРёС‚СЊ Р·Р°РґРЅРёРє
     {
     	Size visibleSize = Director::getInstance()->getVisibleSize();
     	Vec2 origin = Director::getInstance()->getVisibleOrigin();
@@ -445,10 +445,10 @@ void Table::opponentTouched(size_t orderNum)
 	const Positions &pos = Positions::getPositions();
 	log("opponent %lu touched", orderNum);
 
-	// удалить такое меню, если оно уже есть
+	// СѓРґР°Р»РёС‚СЊ С‚Р°РєРѕРµ РјРµРЅСЋ, РµСЃР»Рё РѕРЅРѕ СѓР¶Рµ РµСЃС‚СЊ
 	removeChildByName("info_menu");
 
-	// создать айтемы номеров
+	// СЃРѕР·РґР°С‚СЊ Р°Р№С‚РµРјС‹ РЅРѕРјРµСЂРѕРІ
 	Vector<MenuItem *> arrayOfItems;
 	for (size_t i = 0; i < 5; ++i)
 	{
@@ -459,14 +459,14 @@ void Table::opponentTouched(size_t orderNum)
 		numItem->setAnchorPoint(Vec2::ZERO);
 		numItem->setScale(pos.cardSpriteScale);
 
-		// приделать цифру
+		// РїСЂРёРґРµР»Р°С‚СЊ С†РёС„СЂСѓ
 		auto numSprite = loadNumSprite(i + 1);
 		numItem->addChild(numSprite, 1);
 
 		arrayOfItems.pushBack(numItem);
 	}
 
-	// создать айтемы цветов
+	// СЃРѕР·РґР°С‚СЊ Р°Р№С‚РµРјС‹ С†РІРµС‚РѕРІ
 	for (size_t i = 0; i < allColors.size(); ++i)
 	{
 		auto numItem = MenuItemImage::create("card_face.png", "card_face.png", [=](Ref* sender){
@@ -476,14 +476,14 @@ void Table::opponentTouched(size_t orderNum)
 		numItem->setAnchorPoint(Vec2::ZERO);
 		numItem->setScale(pos.cardSpriteScale);
 
-		// приделать цвет
+		// РїСЂРёРґРµР»Р°С‚СЊ С†РІРµС‚
 		auto numSprite = loadColorSprite(allColors[i]);
 		numItem->addChild(numSprite, 1);
 
 		arrayOfItems.pushBack(numItem);
 	}
 
-	// создать меню и добавить его на стол
+	// СЃРѕР·РґР°С‚СЊ РјРµРЅСЋ Рё РґРѕР±Р°РІРёС‚СЊ РµРіРѕ РЅР° СЃС‚РѕР»
 	auto menu = Menu::createWithArray(arrayOfItems);
 	menu->setPosition(Vec2::ZERO);
 	menu->setName("info_menu");
@@ -683,11 +683,11 @@ const std::vector<char> Table::allColors = {'r', 'g', 'b', 'y', 'w', 'f'};
 
 void Table::newGame(size_t colorQty)
 {
-	// удалить все карты
+	// СѓРґР°Р»РёС‚СЊ РІСЃРµ РєР°СЂС‚С‹
 	auto cards = getChildByName("cards");
 	cards->removeAllChildren();
 
-	// оставить только нужные места для салютов
+	// РѕСЃС‚Р°РІРёС‚СЊ С‚РѕР»СЊРєРѕ РЅСѓР¶РЅС‹Рµ РјРµСЃС‚Р° РґР»СЏ СЃР°Р»СЋС‚РѕРІ
 	for (size_t i = 0; i < allColors.size(); ++i)
 	{
 		char c = allColors[i];
@@ -695,7 +695,7 @@ void Table::newGame(size_t colorQty)
 		colorPlace->setVisible(i < colorQty);
 	}
 
-	// спрятать счёт
+	// СЃРїСЂСЏС‚Р°С‚СЊ СЃС‡С‘С‚
 	auto score = getChildByName("score");
 	score->setVisible(false);
 }
@@ -723,7 +723,7 @@ void Table::takeOp(size_t id, size_t orderNum)
 	const Positions &pos = Positions::getPositions();
 
 	auto cards = getChildByName("cards");
-	auto deckCard = cards->getChildByName("deck"); // карта должна быть предварительно предъявлена : revealDeck()
+	auto deckCard = cards->getChildByName("deck"); // РєР°СЂС‚Р° РґРѕР»Р¶РЅР° Р±С‹С‚СЊ РїСЂРµРґРІР°СЂРёС‚РµР»СЊРЅРѕ РїСЂРµРґСЉСЏРІР»РµРЅР° : revealDeck()
 	deckCard->setName(StringUtils::format("o%lu", id));
 	deckCard->setTag((int)orderNum);
 
@@ -739,7 +739,7 @@ void Table::reveal(size_t id, const std::string &image)
 	auto card = cards->getChildByName(StringUtils::format("%lu", id));
 	MyCard *myCard = dynamic_cast<MyCard *>(card);
 
-	// заменить картинку
+	// Р·Р°РјРµРЅРёС‚СЊ РєР°СЂС‚РёРЅРєСѓ
 	myCard->reinit(StringUtils::format("%s.png", image.c_str()));
 	myCard->setDragEnabled(false);
 }
@@ -748,12 +748,12 @@ void Table::revealDeck(const std::string &image)
 {
 	const Positions &pos = Positions::getPositions();
 
-	// создать карту и установить на колоду
+	// СЃРѕР·РґР°С‚СЊ РєР°СЂС‚Сѓ Рё СѓСЃС‚Р°РЅРѕРІРёС‚СЊ РЅР° РєРѕР»РѕРґСѓ
 	Sprite *card = loadCardSprite(image);
 	card->setPosition(pos.deck);
 	card->setName("deck");
 
-	// добавить в контейнер карт
+	// РґРѕР±Р°РІРёС‚СЊ РІ РєРѕРЅС‚РµР№РЅРµСЂ РєР°СЂС‚
 	auto cards = getChildByName("cards");
 	cards->addChild(card);
 }
@@ -803,7 +803,7 @@ void Table::showNum(size_t num, const std::string &orderMask)
 		auto card = cards->getChildByName(StringUtils::format("%lu", id));
 		MyCard *myCard = dynamic_cast<MyCard *>(card);
 
-		// приделать is_2.png
+		// РїСЂРёРґРµР»Р°С‚СЊ is_2.png
 	    auto spriteIs = Sprite::create(StringUtils::format("is_%lu.png", num));
 	    spriteIs->setAnchorPoint(Vec2::ZERO);
 	    spriteIs->setPosition(Vec2::ZERO);
@@ -812,7 +812,7 @@ void Table::showNum(size_t num, const std::string &orderMask)
 
 		if (orderMask.at(myCard->getOrderNum()) != '1')
 		{
-			// приделать no.png
+			// РїСЂРёРґРµР»Р°С‚СЊ no.png
 		    auto spriteNo = Sprite::create("no.png");
 		    spriteNo->setAnchorPoint(Vec2::ZERO);
 		    spriteNo->setPosition(Vec2::ZERO);
@@ -847,12 +847,12 @@ void Table::showColor(char c, const std::string &orderMask)
 		Sprite *sprite = NULL;
 		if (orderMask.at(myCard->getOrderNum()) == '1')
 		{
-			// приделать is_r.png
+			// РїСЂРёРґРµР»Р°С‚СЊ is_r.png
 		    sprite = Sprite::create(StringUtils::format("is_%c.png", c));
 		}
 		else
 		{
-			// приделать no_r.png
+			// РїСЂРёРґРµР»Р°С‚СЊ no_r.png
 		    sprite = Sprite::create(StringUtils::format("no_%c.png", c));
 		}
 	    sprite->setAnchorPoint(Vec2::ZERO);
@@ -887,11 +887,11 @@ void Table::moveOp(size_t id, size_t newOrderNum)
 	{
 		auto card = cards->getChildByName(StringUtils::format("o%lu", id));
 
-		// заменить порядковый номер на новый
+		// Р·Р°РјРµРЅРёС‚СЊ РїРѕСЂСЏРґРєРѕРІС‹Р№ РЅРѕРјРµСЂ РЅР° РЅРѕРІС‹Р№
 		size_t orderNum = order2Place[card->getTag()];
 		card->setTag(orderNum);
 
-		// сделать движение в новое положение
+		// СЃРґРµР»Р°С‚СЊ РґРІРёР¶РµРЅРёРµ РІ РЅРѕРІРѕРµ РїРѕР»РѕР¶РµРЅРёРµ
 	    auto move = MoveTo::create(pos.duration, pos.opponent + pos.opponentDelta * orderNum);
 	    card->stopAllActions();
 	    card->runAction(move);
@@ -913,11 +913,11 @@ void Table::move(size_t id, size_t newOrderNum)
 		auto card = cards->getChildByName(StringUtils::format("%lu", id));
 		MyCard *myCard = dynamic_cast<MyCard *>(card);
 
-		// заменить порядковый номер на новый
+		// Р·Р°РјРµРЅРёС‚СЊ РїРѕСЂСЏРґРєРѕРІС‹Р№ РЅРѕРјРµСЂ РЅР° РЅРѕРІС‹Р№
 		size_t orderNum = order2Place[myCard->getOrderNum()];
 		myCard->setOrderNum(orderNum);
 
-		// сделать движение в новое положение
+		// СЃРґРµР»Р°С‚СЊ РґРІРёР¶РµРЅРёРµ РІ РЅРѕРІРѕРµ РїРѕР»РѕР¶РµРЅРёРµ
 	    auto move = MoveTo::create(pos.duration, pos.me + pos.meDelta * orderNum);
 	    card->stopAllActions();
 	    card->runAction(move);
@@ -946,7 +946,7 @@ void Table::layCard(cocos2d::Node *card, char c)
 {
     const Positions &pos = Positions::getPositions();
 
-	// найти предудущую верхнюю карту салюта этого цвета
+	// РЅР°Р№С‚Рё РїСЂРµРґСѓРґСѓС‰СѓСЋ РІРµСЂС…РЅСЋСЋ РєР°СЂС‚Сѓ СЃР°Р»СЋС‚Р° СЌС‚РѕРіРѕ С†РІРµС‚Р°
 	auto cards = getChildByName("cards");
 	std::string topName = StringUtils::format("top_%c", c);
 	auto top = cards->getChildByName(topName);

@@ -2,7 +2,7 @@
 #define MYCARD_H_INCLUDED
 
 /**
- * Класс для карт моей руки
+ * РљР»Р°СЃСЃ РґР»СЏ РєР°СЂС‚ РјРѕРµР№ СЂСѓРєРё
  */
 
 #include "DragSprite.h"
@@ -23,8 +23,8 @@ class MyCard : public DragSprite
         size_t getOrderNum() const { return orderNum; }
 
 	private:
-        size_t orderNum; // порядковый номер карты в руке
-        Table &table; // ссылка для сообщения событий о перемещении карты
+        size_t orderNum; // РїРѕСЂСЏРґРєРѕРІС‹Р№ РЅРѕРјРµСЂ РєР°СЂС‚С‹ РІ СЂСѓРєРµ
+        Table &table; // СЃСЃС‹Р»РєР° РґР»СЏ СЃРѕРѕР±С‰РµРЅРёСЏ СЃРѕР±С‹С‚РёР№ Рѕ РїРµСЂРµРјРµС‰РµРЅРёРё РєР°СЂС‚С‹
 };
 
 #endif /* #ifndef MYCARD_H_INCLUDED */
