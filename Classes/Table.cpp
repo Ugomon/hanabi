@@ -403,11 +403,7 @@ bool Table::init()
     }
 
     // открыть файл эмулятора команд от сервера
-	#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS) || (CC_TARGET_PLATFORM == CC_PLATFORM_MAC)
-    	cmdEmulator = new std::ifstream("cmd_emulator.txt");
-	#else
-    	cmdEmulator = new std::ifstream("Resources/cmd_emulator.txt");
-	#endif
+   	cmdEmulator = new std::ifstream(FileUtils::getInstance()->fullPathForFilename("cmd_emulator.txt"));
 
     // добавить задник
     {
