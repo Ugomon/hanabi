@@ -403,7 +403,13 @@ bool Table::init()
     }
 
     // открыть файл эмулятора команд от сервера
-   	cmdEmulator = new std::ifstream(FileUtils::getInstance()->fullPathForFilename("cmd_emulator.txt"));
+	{
+		ssize_t size;
+		char *data = (char *)FileUtils::getInstance()->getFileData("cmd_emulator.txt", "r", &size);
+		cmdData.assign(data, size);
+		cmdEmulator = new std::istringstream(cmdData);
+   		//cmdEmulator = new std::ifstream(FileUtils::getInstance()->fullPathForFilename("cmd_emulator.txt"));
+	}
 
     // добавить задник
     {

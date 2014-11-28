@@ -55,3 +55,34 @@ Add all files from Classes into Classes folder in Xcode project (for Mac && for 
 
 Add all files from Resources into Resources folder in Xcode project (for Mac && for IOs)
 
+How to build under Ubuntu for Android (differences)
+====
+
+Do the same as for Linux.
+
+#fix compile error
+Apply this patch:
+cocos/3d/CCBundleReader.h
+@@ -87,7 +87,7 @@ class BundleReader: public cocos2d::Ref
+/**
+* Returns the position of the file pointer.
+*/
+- long int tell();
++ ssize_t tell();
+/**
+* Sets the position of the file pointer.
+
+install android sdk
+
+install android ndk
+
+#add Classes into android project
+$ vim proj.android/jni/Android.mk
+
+#install ant
+sudo apt-get install ant
+
+cocos compile -p android -m debug
+
+#install apk into emulator
+~/android/sdk/platform-tools$ adb install -r ~/cocos/hanabi/bin/debug/android/hanabi-debug.apk

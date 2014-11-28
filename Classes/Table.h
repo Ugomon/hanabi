@@ -4,6 +4,7 @@
 #include "cocos2d.h"
 #include <vector>
 #include <iostream>
+#include <sstream>
 
 /**
  * Сцена, которая отображает игровой стол.
@@ -67,7 +68,7 @@ public:
     static cocos2d::Scene* createScene();
 
     // Here's a difference. Method 'init' in cocos2d-x returns bool, instead of returning 'id' in cocos2d-iphone
-    virtual bool init();  
+    virtual bool init();
 
     // сообщения от дочерних нодов
     void cardPositionChanged(MyCard &draggingCard, cocos2d::Vec2 oldPos); // карту подвинули
@@ -78,7 +79,7 @@ public:
 
     //
     static const std::vector<char> allColors; // символы цветов в стандартном порядке
-    
+
 protected:
     // стандартное добавление безимянных спрайтов на стол
     cocos2d::Sprite *addCardSprite(const std::string &filename, cocos2d::Vec2 pos, int z);
@@ -136,7 +137,8 @@ protected:
     void infoColorTouched(char c); // кликнуто меню: сообщить инфу об указанном цвете
 
 private:
-    std::istream *cmdEmulator; // файл с командами для эмуляции сервера
+	std::string cmdData; // строка с данными для эмуляции
+    std::istringstream *cmdEmulator; // файл с командами для эмуляции сервера
 };
 
 #endif // __TABLE_H__
