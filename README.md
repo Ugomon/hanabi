@@ -85,4 +85,5 @@ sudo apt-get install ant
 cocos compile -p android -m debug
 
 #install apk into emulator
+run emulator. then...
 ~/android/sdk/platform-tools$ adb install -r ~/cocos/hanabi/bin/debug/android/hanabi-debug.apk
