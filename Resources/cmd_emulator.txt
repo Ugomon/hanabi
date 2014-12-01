@@ -18,6 +18,10 @@ takeOp 3, 3;
 revealDeck w4;
 takeOp 4, 4;
 
+info 5;
+
+err 2;
+
 show 2, 00101;
 
 show 4, 01000;

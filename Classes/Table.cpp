@@ -257,7 +257,7 @@ bool Table::init()
 
     // добавить анимацию думания противника
     {
-        auto turnNode = Sprite::create("turn.jpg", Rect(0, 0, 96, 96));
+        auto turnNode = Sprite::create("turn.png", Rect(0, 0, 96, 96));
         turnNode->setAnchorPoint(Vec2::ZERO);
         turnNode->setPosition(150, 400);
         turnNode->setName("turn_node");
@@ -267,7 +267,7 @@ bool Table::init()
         animFrames.reserve(10);
         for (size_t i = 0; i < 10; ++i)
         {
-            animFrames.pushBack(SpriteFrame::create("turn.jpg", Rect(96 * i, 0, 96, 96)));
+            animFrames.pushBack(SpriteFrame::create("turn.png", Rect(96 * i, 0, 96, 96)));
         }
 
         // create the animation out of the frames

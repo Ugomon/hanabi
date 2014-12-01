@@ -17,7 +17,7 @@ static Positions makeIph5Positions()
 	pos.infoDelta = pos.errDelta;
 	pos.infoScale = pos.errScale;
 
-	pos.cardSpriteScale = 1.3;
+	pos.cardSpriteScale = 1;
 
 	int salutx0 = 325;
 	int salutDx = 35 + 125;
@@ -37,7 +37,7 @@ static Positions makeIph5Positions()
 	pos.meDelta = Vec2(20 + 125, 0);
 
 	// Drop
-	pos.dropScale = 0.5;
+	pos.dropScale = 0.4;
 
 	int dropx0 = 825;
 	int dropyDy = -50;
