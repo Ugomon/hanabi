@@ -20,7 +20,7 @@ void Table::cardPositionChanged(MyCard &draggingCard, cocos2d::Vec2 oldPos)
     const Positions &pos = Positions::getPositions();
 	bool wasInsideHand = pos.changeZone.containsPoint(oldPos);
 	bool isInsideHand = pos.changeZone.containsPoint(draggingCard.getPosition());
-
+	
 	if (isInsideHand)
 	{
 		// todo: переставлять карты не чаще, чем раз в 0.1 секунды
