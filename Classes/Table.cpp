@@ -337,15 +337,9 @@ bool Table::init()
 	{
 		char c = allColors[i];
 
-		// нарисовать место для карты
-		auto colorPlace = addCardSprite("card_face.png", pos.getSalut(c), -2);
+		// нарисовать цветную рамку
+		auto colorPlace = addCardSprite(StringUtils::format("is_%c.png", c), pos.getSalut(c), -2);
 		colorPlace->setName(std::string(1, c)); // именем будет буква цвета
-
-		// сверху приделать цветную рамку
-	    auto sprite = Sprite::create(StringUtils::format("is_%c.png", c));
-	    sprite->setAnchorPoint(Vec2::ZERO);
-	    sprite->setPosition(Vec2::ZERO);
-	    colorPlace->addChild(sprite, 1);
 	}
 
     // create Cards Node
@@ -948,7 +942,7 @@ void Table::layCard(cocos2d::Node *card, char c)
 {
     const Positions &pos = Positions::getPositions();
 
-	// найти предудущую верхнюю карту салюта этого цвета
+	// найти предыдущую верхнюю карту салюта этого цвета
 	auto cards = getChildByName("cards");
 	std::string topName = StringUtils::format("top_%c", c);
 	auto top = cards->getChildByName(topName);
