@@ -792,28 +792,35 @@ void Table::turn(size_t side)
 void Table::showNum(size_t num, const std::string &orderMask)
 {
 	clearShowInfo();
+    bool showNo = isAllZero(orderMask);
 
 	auto cards = getChildByName("cards");
 	for (size_t id = 0; id < 5; ++id)
 	{
-		auto card = cards->getChildByName(StringUtils::format("%lu", id));
-		MyCard *myCard = dynamic_cast<MyCard *>(card);
-
-		// приделать is_2.png
-	    auto spriteIs = Sprite::create(StringUtils::format("is_%lu.png", num));
-	    spriteIs->setAnchorPoint(Vec2::ZERO);
-	    spriteIs->setPosition(Vec2::ZERO);
-	    spriteIs->setName("info");
-	    myCard->addChild(spriteIs, 1);
-
-		if (orderMask.at(myCard->getOrderNum()) != '1')
-		{
-			// приделать no.png
-		    auto spriteNo = Sprite::create("no.png");
-		    spriteNo->setAnchorPoint(Vec2::ZERO);
-		    spriteNo->setPosition(Vec2::ZERO);
-		    spriteIs->addChild(spriteNo, 1);
-		}
+        auto card = cards->getChildByName(StringUtils::format("%lu", id));
+        if (card)
+        {
+            MyCard *myCard = dynamic_cast<MyCard *>(card);
+                
+            if ((orderMask.at(myCard->getOrderNum()) != '0') || showNo)
+            {
+                // приделать is_2.png
+                auto spriteIs = Sprite::create(StringUtils::format("is_%lu.png", num));
+                spriteIs->setAnchorPoint(Vec2::ZERO);
+                spriteIs->setPosition(Vec2::ZERO);
+                spriteIs->setName("info");
+                myCard->addChild(spriteIs, 1);
+                
+                if (orderMask.at(myCard->getOrderNum()) == '0')
+                {
+                    // приделать no.png
+                    auto spriteNo = Sprite::create("no.png");
+                    spriteNo->setAnchorPoint(Vec2::ZERO);
+                    spriteNo->setPosition(Vec2::ZERO);
+                    spriteIs->addChild(spriteNo, 1);
+                }
+            }
+        }
 	}
 }
 
@@ -830,31 +837,50 @@ void Table::clearShowInfo()
 	}
 }
 
+bool Table::isAllZero(const std::string &str)
+{
+    for (const auto c : str)
+    {
+        if (c != '0')
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
 void Table::showColor(char c, const std::string &orderMask)
 {
 	clearShowInfo();
+    bool showNo = isAllZero(orderMask);
 
 	auto cards = getChildByName("cards");
 	for (size_t id = 0; id < 5; ++id)
 	{
 		auto card = cards->getChildByName(StringUtils::format("%lu", id));
-		MyCard *myCard = dynamic_cast<MyCard *>(card);
+        if (card)
+        {
+            MyCard *myCard = dynamic_cast<MyCard *>(card);
 
-		Sprite *sprite = NULL;
-		if (orderMask.at(myCard->getOrderNum()) == '1')
-		{
-			// приделать is_r.png
-		    sprite = Sprite::create(StringUtils::format("is_%c.png", c));
-		}
-		else
-		{
-			// приделать no_r.png
-		    sprite = Sprite::create(StringUtils::format("no_%c.png", c));
-		}
-	    sprite->setAnchorPoint(Vec2::ZERO);
-	    sprite->setPosition(Vec2::ZERO);
-	    sprite->setName("info");
-	    myCard->addChild(sprite, 1);
+            Sprite *sprite = NULL;
+            if (orderMask.at(myCard->getOrderNum()) != '0')
+            {
+                // приделать is_r.png
+                sprite = Sprite::create(StringUtils::format("is_%c.png", c));
+            }
+            else if (showNo)
+            {
+                // приделать no_r.png
+                sprite = Sprite::create(StringUtils::format("no_%c.png", c));
+            }
+            if (sprite)
+            {
+                sprite->setAnchorPoint(Vec2::ZERO);
+                sprite->setPosition(Vec2::ZERO);
+                sprite->setName("info");
+                myCard->addChild(sprite, 1);
+            }
+        }
 	}
 }
 

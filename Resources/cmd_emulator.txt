@@ -18,19 +18,26 @@ takeOp 3, 3;
 revealDeck w4;
 takeOp 4, 4;
 
-info 5;
-
-err 2;
-
 show 2, 00101;
 
-show 4, 01000;
+show 4, 00000;
 
 show g, 11001;
 
+show w, 00000;
+
 reveal 0, w4;
 lay 0, w;
+
+show b, 00000;
+
+show 3, 00000;
+
 take 0, 0;
+
+info 5;
+
+err 2;
 
 reveal 2, w5;
 lay 2, w;

@@ -79,6 +79,7 @@ public:
 
     //
     static const std::vector<char> allColors; // символы цветов в стандартном порядке
+    static bool isAllZero(const std::string &str); // вернет true, если в строке - все символы == '0'
 
 protected:
     // стандартное добавление безимянных спрайтов на стол
