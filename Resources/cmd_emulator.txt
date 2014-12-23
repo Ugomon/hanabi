@@ -18,6 +18,20 @@ takeOp 3, 3;
 revealDeck w4;
 takeOp 4, 4;
 
+reveal 2, w5;
+lay 2, w;
+
+move 4, 1;
+move 3, 3;
+
+dropOp 0, y, 7;
+
+moveOp 2, 0;
+
+moveOp 2, 2;
+
+moveOp 3, 0;
+
 show 2, 00101;
 
 show 4, 00000;

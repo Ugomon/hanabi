@@ -33,11 +33,14 @@ void Table::cardPositionChanged(MyCard &draggingCard, cocos2d::Vec2 oldPos)
 		for (size_t id = 0; id < 5; ++id)
 		{
 			auto card = cards->getChildByName(StringUtils::format("%lu", id));
-			MyCard *myCard = dynamic_cast<MyCard *>(card);
-			if (myCard->getOrderNum() != draggingCard.getOrderNum()) // перетаскиваемую не трогаем. Расставляем остальные.
+			if (card) // возможно, что у нас не все 5 карт на руках
 			{
-				myCard->stopAllActions();
-				myCard->setPosition(pos.me + pos.meDelta * order2Place[myCard->getOrderNum()]);
+				MyCard *myCard = dynamic_cast<MyCard *>(card);
+				if (myCard->getOrderNum() != draggingCard.getOrderNum()) // перетаскиваемую не трогаем. Расставляем остальные.
+				{
+					myCard->stopAllActions();
+					myCard->setPosition(pos.me + pos.meDelta * order2Place[myCard->getOrderNum()]);
+				}
 			}
 		}
 	}
@@ -134,20 +137,23 @@ void Table::moveAllInPlaces(size_t exceptOrderNum, bool immediately)
 	for (size_t id = 0; id < 5; ++id)
 	{
 		auto card = cards->getChildByName(StringUtils::format("%lu", id));
-		MyCard *myCard = dynamic_cast<MyCard *>(card);
-		if (myCard->getOrderNum() != exceptOrderNum)
+		if (card) // возможно, что у нас не все 5 карт на руках
 		{
-			myCard->stopAllActions();
-			Vec2 target = pos.me + pos.meDelta * myCard->getOrderNum();
+			MyCard *myCard = dynamic_cast<MyCard *>(card);
+			if (myCard->getOrderNum() != exceptOrderNum)
+			{
+				myCard->stopAllActions();
+				Vec2 target = pos.me + pos.meDelta * myCard->getOrderNum();
 
-			if (immediately)
-			{
-				myCard->setPosition(target);
-			}
-			else
-			{
-				auto move = MoveTo::create(pos.duration, target);
-				myCard->runAction(move);
+				if (immediately)
+				{
+					myCard->setPosition(target);
+				}
+				else
+				{
+					auto move = MoveTo::create(pos.duration, target);
+					myCard->runAction(move);
+				}
 			}
 		}
 	}
@@ -909,14 +915,17 @@ void Table::moveOp(size_t id, size_t newOrderNum)
 	{
 		auto card = cards->getChildByName(StringUtils::format("o%lu", id));
 
-		// заменить порядковый номер на новый
-		size_t orderNum = order2Place[card->getTag()];
-		card->setTag(orderNum);
+		if (card)
+		{
+			// заменить порядковый номер на новый
+			size_t orderNum = order2Place[card->getTag()];
+			card->setTag(orderNum);
 
-		// сделать движение в новое положение
-	    auto move = MoveTo::create(pos.duration, pos.opponent + pos.opponentDelta * orderNum);
-	    card->stopAllActions();
-	    card->runAction(move);
+			// сделать движение в новое положение
+			auto move = MoveTo::create(pos.duration, pos.opponent + pos.opponentDelta * orderNum);
+			card->stopAllActions();
+			card->runAction(move);
+		}
 	}
 }
 
@@ -933,16 +942,19 @@ void Table::move(size_t id, size_t newOrderNum)
 	for (size_t id = 0; id < 5; ++id)
 	{
 		auto card = cards->getChildByName(StringUtils::format("%lu", id));
-		MyCard *myCard = dynamic_cast<MyCard *>(card);
+		if (card)
+		{
+			MyCard *myCard = dynamic_cast<MyCard *>(card);
 
-		// заменить порядковый номер на новый
-		size_t orderNum = order2Place[myCard->getOrderNum()];
-		myCard->setOrderNum(orderNum);
+			// заменить порядковый номер на новый
+			size_t orderNum = order2Place[myCard->getOrderNum()];
+			myCard->setOrderNum(orderNum);
 
-		// сделать движение в новое положение
-	    auto move = MoveTo::create(pos.duration, pos.me + pos.meDelta * orderNum);
-	    card->stopAllActions();
-	    card->runAction(move);
+			// сделать движение в новое положение
+			auto move = MoveTo::create(pos.duration, pos.me + pos.meDelta * orderNum);
+			card->stopAllActions();
+			card->runAction(move);
+		}
 	}
 }
 

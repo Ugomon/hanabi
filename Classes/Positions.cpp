@@ -30,8 +30,8 @@ static Positions makeIph5Positions()
 	pos.salutW = Vec2(salutx0 + salutDx * 1, salutY1);
 	pos.salutF = Vec2(salutx0 + salutDx * 2, salutY1);
 
-	pos.opponent = Vec2(100, 500);
-	pos.opponentDelta = Vec2(20 + 125, 0);
+	pos.opponent = Vec2(680, 500);
+	pos.opponentDelta = Vec2(-(20 + 125), 0);
 
 	pos.me = Vec2(100, 15);
 	pos.meDelta = Vec2(20 + 125, 0);
